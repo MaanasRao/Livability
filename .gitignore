@@ -29,6 +29,7 @@ web-build/
 # Never commit these!
 .env
 .env.local
+backend/.env
 .env.development.local
 .env.test.local
 .env.production.local
