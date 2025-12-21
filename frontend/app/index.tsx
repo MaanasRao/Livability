@@ -1,18 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, View, Text } from 'react-native';
+import { StyleSheet, View, Text, Alert } from 'react-native';
 import MapView, { Marker, Polygon, PROVIDER_DEFAULT } from 'react-native-maps';
 import * as Location from 'expo-location';
 import FAB from '../components/ui/FAB';
 import ReportModal from '../components/ReportModal';
 
-const API_URL = 'http://192.168.2.34:8000'; // ⚠️ Check your IP
+// ⚠️ Ensure this matches your backend computer's local IP address
+const API_URL = 'http://192.168.2.34:8000'; 
 
 export default function MapScreen() {
   const mapRef = useRef<MapView>(null);
   const [location, setLocation] = useState<Location.LocationObject | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   
-  // The Grid Data
   const [gridPolygons, setGridPolygons] = useState<any[]>([]);
   const [userReports, setUserReports] = useState([]);
 
@@ -23,55 +23,71 @@ export default function MapScreen() {
     longitudeDelta: 0.08,
   };
 
-  // 📐 SETTINGS: How big are the squares?
-  // 0.005 degrees is roughly 500m (a few city blocks)
-  const GRID_SIZE = 0.005; 
+  const GRID_SIZE = 0.005; // Approx 500m square blocks
 
+  // 1. GENERATE THE GRID (Capped Scoring Logic)
   const generateGrid = (allEvents: any[]) => {
-    const grid: { [key: string]: number } = {};
+    const grid: { [key: string]: { score: number, details: string[] } } = {};
 
-    // 1. BINNING: Put every point into a "Box"
     allEvents.forEach((event) => {
       if (!event.lat || !event.lng) return;
 
-      // Calculate Grid Coordinates (Round down to nearest grid line)
       const gridX = Math.floor(event.lng / GRID_SIZE);
       const gridY = Math.floor(event.lat / GRID_SIZE);
       const key = `${gridX},${gridY}`;
 
-      if (!grid[key]) grid[key] = 0;
+      if (!grid[key]) {
+        // We start with a base score of 0
+        grid[key] = { score: 0, details: [] };
+      }
 
-      // 2. SCORING LOGIC
-      // Customize this to change how the map looks!
+      let label = "";
+      let penalty = 0;
+
+      // DEFINE CATEGORIES
       if (['park', 'school', 'amenity'].includes(event.type)) {
-        grid[key] += 2; // Green Points add score
-      } else if (['traffic', 'noise', 'industrial'].includes(event.type)) {
-        // Use the weight from DB, or default to -5 for danger
-        const dangerWeight = event.weight > 0 ? event.weight : 1;
-        grid[key] -= (dangerWeight * 3); // Red Points subtract score
+        label = '✅ Park/School (+2)';
+        penalty = 2;
+      } else if (event.type === 'industrial') {
+        label = '🏭 Industrial Zone (-5)';
+        penalty = -5;
+      } else if (event.type === 'noise_static') {
+        label = '🚂 Highway/Rail Noise (-3)';
+        penalty = -3;
+      } else if (event.type === 'traffic') {
+        label = '🚗 Traffic Incident (-3)';
+        penalty = -3;
+      }
+
+      // THE FIX: Only apply the penalty ONCE per grid square per type
+      // This prevents thousands of points from creating unrealistic -300 scores
+      if (label && !grid[key].details.includes(label)) {
+        grid[key].score += penalty;
+        grid[key].details.push(label);
       }
     });
 
-    // 3. CREATE POLYGONS
     const polygons = Object.keys(grid).map((key) => {
       const [gridX, gridY] = key.split(',').map(Number);
-      const score = grid[key];
+      const data = grid[key];
+      const score = data.score;
 
-      // Determine Color based on Score
-      let fillColor = 'rgba(128, 128, 128, 0.2)'; // Default Grey (Neutral)
-      
-      if (score > 5) fillColor = 'rgba(0, 255, 0, 0.4)';       // 🟢 Very Safe
-      else if (score > 0) fillColor = 'rgba(144, 238, 144, 0.4)'; // 🟢 Safeish
-      else if (score < -10) fillColor = 'rgba(255, 0, 0, 0.5)';   // 🔴 Dangerous
+      // COLOR ASSIGNMENT
+      let fillColor = 'transparent'; 
+      if (score >= 4) fillColor = 'rgba(0, 255, 0, 0.4)';         // 🟢 High Livability
+      else if (score > 0) fillColor = 'rgba(144, 238, 144, 0.4)'; // 🟢 Moderate Livability
+      else if (score <= -8) fillColor = 'rgba(255, 0, 0, 0.5)';   // 🔴 Low Livability
       else if (score < 0) fillColor = 'rgba(255, 165, 0, 0.4)';   // 🟠 Caution
 
-      // Create the Square Shape
+      if (fillColor === 'transparent') return null;
+
       const minLng = gridX * GRID_SIZE;
       const minLat = gridY * GRID_SIZE;
       
       return {
         id: key,
         score: score,
+        reasons: data.details,
         color: fillColor,
         coordinates: [
           { latitude: minLat, longitude: minLng },
@@ -80,7 +96,7 @@ export default function MapScreen() {
           { latitude: minLat, longitude: minLng + GRID_SIZE },
         ]
       };
-    });
+    }).filter(Boolean);
 
     setGridPolygons(polygons);
   };
@@ -90,14 +106,10 @@ export default function MapScreen() {
       const response = await fetch(`${API_URL}/events`);
       const data = await response.json();
       
-      // Separate User Reports (Pins) from Background Data (Grid)
       const reports = data.filter((e: any) => ['noise', 'safety'].includes(e.type));
       setUserReports(reports);
 
-      // Generate the Grid with EVERYTHING else
       generateGrid(data);
-
-      console.log(`Generated ${data.length} data points into Grid.`);
     } catch (error) {
       console.error("Error fetching events:", error);
     }
@@ -111,9 +123,7 @@ export default function MapScreen() {
     if (status !== 'granted') return;
     let loc = await Location.getCurrentPositionAsync({});
     
-    // Jitter
     const jitter = (Math.random() - 0.5) * 0.0005;
-
     const payload = {
       type: type,
       lat: loc.coords.latitude + jitter,
@@ -149,20 +159,33 @@ export default function MapScreen() {
         showsUserLocation={true}
         provider={PROVIDER_DEFAULT}
       >
-        {/* 🔲 THE GRID LAYER */}
-        {gridPolygons.map((poly) => (
+        {/* GRID LAYER */}
+        {gridPolygons.map((poly: any) => (
           <Polygon
             key={poly.id}
             coordinates={poly.coordinates}
             fillColor={poly.color}
-            strokeColor="rgba(255,255,255,0.5)" // White borders like your reference image
+            strokeColor="rgba(255,255,255,0.3)" 
             strokeWidth={1}
             tappable={true}
-            onPress={() => alert(`Livability Score: ${poly.score}`)}
+            onPress={() => {
+                let status = "Neutral Area";
+                if (poly.score > 0) status = "✅ Livable Area";
+                if (poly.score < 0) status = "⚠️ Caution Area";
+                
+                const reasonText = poly.reasons.length > 0 
+                    ? poly.reasons.join('\n') 
+                    : "Standard residential area.";
+
+                Alert.alert(
+                    status, 
+                    `Total Score: ${poly.score}\n\nFactors Found:\n${reasonText}`
+                );
+            }}
           />
         ))}
 
-        {/* 📍 USER PINS (Layered on top) */}
+        {/* USER PINS */}
         {userReports.map((event: any) => (
           <Marker
             key={event.id}
@@ -171,8 +194,33 @@ export default function MapScreen() {
             pinColor={event.type === 'safety' ? 'gold' : 'red'}
           />
         ))}
-
       </MapView>
+
+      {/* LEGEND (Heatmap + Pins) */}
+      <View style={styles.legendContainer}>
+        <Text style={styles.legendTitle}>Livability Index</Text>
+        
+        <View style={styles.legendItem}>
+          <View style={[styles.legendBox, { backgroundColor: 'rgba(0, 255, 0, 0.4)' }]} />
+          <Text style={styles.legendText}>High / Amenities</Text>
+        </View>
+        <View style={styles.legendItem}>
+          <View style={[styles.legendBox, { backgroundColor: 'rgba(255, 0, 0, 0.5)' }]} />
+          <Text style={styles.legendText}>Low / Industrial</Text>
+        </View>
+
+        <View style={styles.divider} />
+
+        <View style={styles.legendItem}>
+          <View style={[styles.legendCircle, { backgroundColor: 'gold' }]} />
+          <Text style={styles.legendText}>Report: Safe</Text>
+        </View>
+        <View style={styles.legendItem}>
+          <View style={[styles.legendCircle, { backgroundColor: 'red' }]} />
+          <Text style={styles.legendText}>Report: Danger</Text>
+        </View>
+      </View>
+
       <FAB onPress={handleReportPress} />
       <ReportModal visible={modalVisible} onClose={() => setModalVisible(false)} onSubmit={handleSubmit} />
     </View>
@@ -182,4 +230,36 @@ export default function MapScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   map: { width: '100%', height: '100%' },
+  legendContainer: {
+    position: 'absolute',
+    bottom: 90, 
+    left: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    padding: 12,
+    borderRadius: 12,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+  },
+  legendTitle: {
+    fontSize: 11,
+    fontWeight: 'bold',
+    marginBottom: 8,
+    color: '#222',
+    textTransform: 'uppercase',
+  },
+  legendItem: { flexDirection: 'row', alignItems: 'center', marginBottom: 5 },
+  legendBox: { width: 14, height: 14, marginRight: 8, borderRadius: 3 },
+  legendCircle: { 
+    width: 12, 
+    height: 12, 
+    marginRight: 8, 
+    borderRadius: 6, 
+    borderWidth: 1, 
+    borderColor: '#ddd' 
+  },
+  legendText: { fontSize: 11, color: '#444' },
+  divider: { height: 1, backgroundColor: '#eee', marginVertical: 6 }
 });
