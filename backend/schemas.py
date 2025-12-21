@@ -1,17 +1,22 @@
 from pydantic import BaseModel
 from datetime import datetime
+from typing import Optional
 
-# What the User sends (React Native -> Backend)
 class EventCreate(BaseModel):
     type: str
+    description: str
     lat: float
     lng: float
-    description: str | None = None
+    weight: Optional[int] = 0 # <--- Add this
 
-# What the Backend sends back (Backend -> React Native)
-class EventResponse(EventCreate):
+class EventResponse(BaseModel):
     id: int
     created_at: datetime
+    type: str
+    description: str
+    lat: float
+    lng: float
+    weight: int # <--- Add this
 
     class Config:
-        from_attributes = True
+        orm_mode = True

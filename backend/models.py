@@ -1,20 +1,20 @@
-from sqlalchemy import Column, Integer, String, DateTime, Float
+from sqlalchemy import Column, Integer, String, Float, DateTime
 from sqlalchemy.sql import func
-from geoalchemy2 import Geometry
 from database import Base
 
 class Event(Base):
     __tablename__ = "events"
 
     id = Column(Integer, primary_key=True, index=True)
-    type = Column(String)  # "noise", "transit", "safety"
-    description = Column(String, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
     
-    # It stores the location as a GEOMETRY point
-    location = Column(Geometry("POINT", srid=4326)) 
-    
-    # Helpers for standard lat/lng (easier for React Native to read)
+    type = Column(String)        # e.g. "traffic", "noise"
+    description = Column(String) 
     lat = Column(Float)
     lng = Column(Float)
-
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    
+    # 👇 ADD THIS LINE
+    weight = Column(Integer, default=0) 
+    
+    # (Optional) Geoalchemy field if you used it, otherwise ignore
+    location = Column(String)

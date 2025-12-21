@@ -28,7 +28,7 @@ def read_root():
 # 1. Save a Report (Frontend sends this)
 @app.post("/events", response_model=EventResponse)
 def create_event(event: EventCreate, db: Session = Depends(get_db)):
-    # Convert lat/lng to PostGIS Geometry format
+    # Convert lat/lng to PostGIS Geometry format (Optional, but good for future)
     # "POINT(longitude latitude)"
     geo_point = f"POINT({event.lng} {event.lat})"
     
@@ -37,6 +37,7 @@ def create_event(event: EventCreate, db: Session = Depends(get_db)):
         description=event.description,
         lat=event.lat,
         lng=event.lng,
+        weight=event.weight,  # <--- ✅ ADDED: Save the weight (danger score)
         location=geo_point
     )
     
@@ -48,6 +49,7 @@ def create_event(event: EventCreate, db: Session = Depends(get_db)):
 # 2. Get All Reports (Frontend reads this)
 @app.get("/events", response_model=list[EventResponse])
 def get_events(db: Session = Depends(get_db)):
-    # For MVP, just get the last 50 events
-    # Later we will filter by location radius
-    return db.query(Event).order_by(Event.created_at.desc()).limit(50).all()
+    # ✅ CHANGED: Removed .limit(50)
+    # We now fetch all data so the Heatmap can show Traffic, Industry, and Noise.
+    # We order by ID to keep it consistent.
+    return db.query(Event).all()

@@ -1,0 +1,2605 @@
+{
+  "type": "FeatureCollection",
+  "generator": "overpass-turbo",
+  "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.",
+  "timestamp": "2025-12-21T19:18:02Z",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/25903405",
+        "addr:city": "Burlington",
+        "addr:housenumber": "2010",
+        "addr:postcode": "L7L 6M5",
+        "addr:street": "Appleby Line",
+        "brand": "Metro",
+        "brand:wikidata": "Q1145669",
+        "brand:wikipedia": "en:Metro Inc.",
+        "building": "retail",
+        "name": "Metro",
+        "opening_hours": "Mo-Su 07:00-22:00",
+        "payment:cash": "yes",
+        "payment:interac": "yes",
+        "payment:mastercard": "yes",
+        "payment:visa": "yes",
+        "shop": "supermarket",
+        "wheelchair": "yes",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.7937714,
+          43.3922129
+        ]
+      },
+      "id": "way/25903405"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/27249367",
+        "addr:housenumber": "770",
+        "alt_name": "Tony's No Frills",
+        "brand": "No Frills",
+        "brand:wikidata": "Q3342407",
+        "building": "retail",
+        "name": "No Frills",
+        "shop": "supermarket",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.8824472,
+          43.2296901
+        ]
+      },
+      "id": "way/27249367"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/28250809",
+        "brand": "Sobeys",
+        "brand:wikidata": "Q1143340",
+        "brand:wikipedia": "en:Sobeys",
+        "building": "retail",
+        "internet_access": "wlan",
+        "layer": "4",
+        "name": "Sobeys",
+        "shop": "supermarket",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.9436111,
+          43.2285301
+        ]
+      },
+      "id": "way/28250809"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/28500403",
+        "addr:housename": "Fortinos",
+        "addr:street": "Mall Road",
+        "brand": "Fortinos",
+        "brand:wikidata": "Q5472662",
+        "brand:wikipedia": "en:Fortinos",
+        "building": "retail",
+        "name": "Fortinos",
+        "shop": "supermarket",
+        "store_name": "Fortinos Mall Road",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.8586906,
+          43.2207482
+        ]
+      },
+      "id": "way/28500403"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/43938051",
+        "building": "retail",
+        "name": "Goodness Me",
+        "shop": "supermarket",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.8977793,
+          43.3332036
+        ]
+      },
+      "id": "way/43938051"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/43938058",
+        "brand": "Longo's",
+        "brand:wikidata": "Q6674182",
+        "building": "yes",
+        "name": "Longo's",
+        "opening_hours": "Mo-Fr 07:00-22:00; Sa-Su 07:00-20:00; PH off",
+        "shop": "supermarket",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.820495,
+          43.3304553
+        ]
+      },
+      "id": "way/43938058"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/43938539",
+        "addr:housenumber": "435",
+        "addr:postcode": "L8N 1K1",
+        "addr:street": "Main Street East",
+        "alt_name": "Giorgio's No Frills",
+        "brand": "No Frills",
+        "brand:wikidata": "Q3342407",
+        "brand:wikipedia": "en:No Frills (grocery store)",
+        "building": "retail",
+        "contact:facebook": "https://www.facebook.com/nofrillsCA/",
+        "contact:instagram": "haulhard",
+        "contact:twitter": "nofrillsCA",
+        "name": "No Frills",
+        "opening_hours": "Mo-Su 08:00-21:00",
+        "phone": "+1 866 987 6453",
+        "shop": "supermarket",
+        "website": "https://www.nofrills.ca/store-locator/details/3668",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.8523376,
+          43.2518268
+        ]
+      },
+      "id": "way/43938539"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/43938858",
+        "addr:city": "Hamilton",
+        "brand": "Food Basics",
+        "brand:wikidata": "Q5465300",
+        "brand:wikipedia": "en:Food Basics",
+        "building": "retail",
+        "building:levels": "1",
+        "building:material": "brick",
+        "check_date": "2025-01-15",
+        "name": "Food Basics",
+        "opening_hours": "Mo-Fr 08:00-21:00; Sa-Su 08:00-20:00",
+        "payment:cash": "yes",
+        "payment:credit_cards": "yes",
+        "payment:debit_cards": "yes",
+        "roof:levels": "0",
+        "roof:shape": "flat",
+        "shop": "supermarket",
+        "wheelchair": "yes",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.8999841,
+          43.2623055
+        ]
+      },
+      "id": "way/43938858"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/43939138",
+        "brand": "Food Basics",
+        "brand:wikidata": "Q5465300",
+        "brand:wikipedia": "en:Food Basics",
+        "building": "retail",
+        "building:levels": "1",
+        "name": "Food Basics",
+        "shop": "supermarket",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.859442,
+          43.2641315
+        ]
+      },
+      "id": "way/43939138"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/97927836",
+        "brand": "Wholesale Club",
+        "brand:wikidata": "Q7997568",
+        "building": "retail",
+        "name": "Wholesale Club",
+        "shop": "supermarket",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.7704069,
+          43.2404455
+        ]
+      },
+      "id": "way/97927836"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/100948233",
+        "brand": "Fortinos",
+        "brand:wikidata": "Q5472662",
+        "brand:wikipedia": "en:Fortinos",
+        "building": "retail",
+        "name": "Fortinos",
+        "shop": "supermarket",
+        "source": "Bing",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.9890664,
+          43.2154898
+        ]
+      },
+      "id": "way/100948233"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/122210987",
+        "addr:housenumber": "284",
+        "addr:postcode": "L8N1B7",
+        "addr:street": "King Street East",
+        "building": "yes",
+        "height": "4",
+        "name": "Denninger's Foods of the World",
+        "opening_hours": "Mo-Fr 09:00-18:00; Sa 08:00-18:00; Su 10:00-17:00",
+        "phone": "+1 905 528 8468",
+        "shop": "supermarket",
+        "source": "Bing",
+        "website": "https://denningers.com/",
+        "wheelchair": "yes",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.8608447,
+          43.253712
+        ]
+      },
+      "id": "way/122210987"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/133532853",
+        "brand": "Walmart",
+        "brand:wikidata": "Q483551",
+        "brand:wikipedia": "en:Walmart",
+        "building": "retail",
+        "building:levels": "1",
+        "name": "Walmart Supercentre",
+        "opening_hours": "Mo-Su 07:00-23:00",
+        "operator": "Walmart",
+        "operator:wikidata": "Q483551",
+        "operator:wikipedia": "en:Walmart",
+        "shop": "supermarket",
+        "website": "https://www.walmart.ca/en/stores-near-me/hamilton-ont-relo-3037",
+        "website:en": "https://www.walmart.ca/en/stores-near-me/hamilton-ont-relo-3037",
+        "website:fr": "https://www.walmart.ca/fr/magasins-pres-de-chez-moi/hamilton-ont-relo-3037",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.87771,
+          43.234213
+        ]
+      },
+      "id": "way/133532853"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/135274230",
+        "brand": "Metro",
+        "brand:wikidata": "Q1145669",
+        "brand:wikipedia": "en:Metro Inc.",
+        "building": "retail",
+        "name": "Metro",
+        "shop": "supermarket",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.8125538,
+          43.2532935
+        ]
+      },
+      "id": "way/135274230"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/148241199",
+        "addr:city": "Burlington",
+        "addr:housenumber": "2180",
+        "addr:postcode": "L7M 5A5",
+        "addr:province": "ON",
+        "addr:street": "Itabashi Way",
+        "building": "yes",
+        "name": "Nature's Emporium",
+        "opening_hours": "Mo-Fr 09:00-20:00; Sa-Su 09:00-19:00",
+        "phone": "+1 289-427-5075",
+        "shop": "supermarket",
+        "website": "https://naturesemporium.com/",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.7949392,
+          43.3879263
+        ]
+      },
+      "id": "way/148241199"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/170354904",
+        "addr:city": "Oakville",
+        "addr:housenumber": "3455",
+        "addr:street": "Wyecroft Road",
+        "brand": "Longo's",
+        "brand:wikidata": "Q6674182",
+        "building": "retail",
+        "name": "Longo's",
+        "shop": "supermarket",
+        "source": "Bing",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.7469759,
+          43.3980779
+        ]
+      },
+      "id": "way/170354904"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/176885417",
+        "addr:housenumber": "2065",
+        "addr:postcode": "L7R 0B4",
+        "addr:street": "Fairview Street",
+        "brand": "Walmart",
+        "brand:wikidata": "Q483551",
+        "brand:wikipedia": "en:Walmart",
+        "building": "retail",
+        "building:levels": "1",
+        "check_date": "2025-05-18",
+        "name": "Walmart Supercentre",
+        "opening_hours": "Mo-Su 07:00-23:00",
+        "operator": "Walmart",
+        "phone": "+1-905-637-3100",
+        "shop": "supermarket",
+        "website": "https://www.walmart.ca/en/store/3141",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.8120902,
+          43.3378322
+        ]
+      },
+      "id": "way/176885417"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/183290222",
+        "addr:city": "Hamilton",
+        "addr:housenumber": "1579",
+        "addr:postcode": "L8S 1E6",
+        "addr:province": "ON",
+        "addr:street": "Main Street West",
+        "brand": "Fortinos",
+        "brand:wikidata": "Q5472662",
+        "brand:wikipedia": "en:Fortinos",
+        "building": "retail",
+        "diet:kosher": "yes",
+        "name": "Fortinos",
+        "opening_hours": "Mo-Fr 07:00-21:00; Sa-Su 07:00-20:00",
+        "payment:apple_pay": "yes",
+        "payment:cash": "yes",
+        "payment:coins": "yes",
+        "payment:credit_cards": "yes",
+        "payment:gift_card": "yes",
+        "payment:google_pay": "yes",
+        "payment:interac": "yes",
+        "payment:mastercard": "yes",
+        "payment:samsung_pay": "yes",
+        "payment:visa": "yes",
+        "phone": "+1 905-308-9045",
+        "shop": "supermarket",
+        "toilets:wheelchair": "yes",
+        "website": "https://www.fortinos.ca/store-locator/details/0067",
+        "wheelchair": "yes",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.9288605,
+          43.2553247
+        ]
+      },
+      "id": "way/183290222"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/183669436",
+        "brand": "Fortinos",
+        "brand:wikidata": "Q5472662",
+        "brand:wikipedia": "en:Fortinos",
+        "building": "retail",
+        "name": "Fortinos",
+        "shop": "supermarket",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.7778345,
+          43.1756649
+        ]
+      },
+      "id": "way/183669436"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/186340685",
+        "addr:city": "Burlington",
+        "addr:housenumber": "2300",
+        "addr:postcode": "L7R 2E4",
+        "addr:street": "Fairview Street",
+        "building": "retail",
+        "building:levels": "1",
+        "diet:gluten_free": "yes",
+        "diet:lactose_free": "yes",
+        "diet:vegan": "yes",
+        "diet:vegetarian": "yes",
+        "name": "Goodness Me! Natural Food Market",
+        "opening_hours": "Mo-Su 08:00-20:00",
+        "organic": "yes",
+        "shop": "supermarket",
+        "source": "Bing",
+        "website": "https://goodnessme.ca/pages/storelocation#burlington",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.8026998,
+          43.342491
+        ]
+      },
+      "id": "way/186340685"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/198834232",
+        "addr:city": "Burlington",
+        "addr:housenumber": "1059",
+        "addr:postcode": "L7T 4K1",
+        "addr:street": "Plains Road East",
+        "brand": "Fortinos",
+        "brand:wikidata": "Q5472662",
+        "brand:wikipedia": "en:Fortinos",
+        "building": "retail",
+        "name": "Fortinos",
+        "opening_hours": "Mo-Fr 07:00-21:00; Sa-Su 07:00-20:00; PH off",
+        "shop": "supermarket",
+        "smoking": "no",
+        "source": "Bing",
+        "toilets:wheelchair": "yes",
+        "wheelchair": "yes",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.8315448,
+          43.3265787
+        ]
+      },
+      "id": "way/198834232"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/206142695",
+        "addr:housenumber": "1115 Barton Street E.",
+        "addr:postcode": "L8H 2V2",
+        "addr:street": "Barton Street East",
+        "brand": "Walmart",
+        "brand:wikidata": "Q483551",
+        "brand:wikipedia": "en:Walmart",
+        "building": "retail",
+        "name": "Walmart Supercentre",
+        "operator": "Walmart",
+        "shop": "supermarket",
+        "website": "https://www.walmart.ca/en/stores-near-me/hamilton-centre-1121",
+        "website:en": "https://www.walmart.ca/en/stores-near-me/hamilton-centre-1121",
+        "website:fr": "https://www.walmart.ca/fr/magasins-pres-de-chez-moi/hamilton-centre-1121",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.8145479,
+          43.2522875
+        ]
+      },
+      "id": "way/206142695"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/209554880",
+        "brand": "Walmart",
+        "brand:wikidata": "Q483551",
+        "brand:wikipedia": "en:Walmart",
+        "building": "retail",
+        "building:levels": "1",
+        "name": "Walmart Supercentre",
+        "ref:walmart": "1107",
+        "shop": "supermarket",
+        "website": "https://www.walmart.ca/en/stores-near-me/dundas-ontario-1107",
+        "website:en": "https://www.walmart.ca/en/stores-near-me/dundas-ontario-1107",
+        "website:fr": "https://www.walmart.ca/fr/magasins-pres-de-chez-moi/dundas-ontario-1107",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.9087227,
+          43.3157342
+        ]
+      },
+      "id": "way/209554880"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/251869649",
+        "addr:housenumber": "510",
+        "addr:street": "Centennial Parkway North",
+        "brand": "Walmart",
+        "brand:wikidata": "Q483551",
+        "brand:wikipedia": "en:Walmart",
+        "building": "retail",
+        "building:levels": "1",
+        "name": "Walmart Supercentre",
+        "opening_hours": "Mo-Su 07:00-23:00",
+        "shop": "supermarket",
+        "website": "https://www.walmart.ca/en/stores-near-me/stoney-creek-on-3096",
+        "website:en": "https://www.walmart.ca/en/stores-near-me/stoney-creek-on-3096",
+        "website:fr": "https://www.walmart.ca/fr/magasins-pres-de-chez-moi/stoney-creek-on-3096",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.7534105,
+          43.2414807
+        ]
+      },
+      "id": "way/251869649"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/256998139",
+        "brand": "Sobeys",
+        "brand:wikidata": "Q1143340",
+        "brand:wikipedia": "en:Sobeys",
+        "name": "Sobeys",
+        "shop": "supermarket",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.8984505,
+          43.3303872
+        ]
+      },
+      "id": "node/256998139"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/258607808",
+        "addr:city": "Hamilton",
+        "addr:housenumber": "50",
+        "addr:postcode": "L8P 4W3",
+        "addr:street": "Dundurn Street South",
+        "addr:unit": "B",
+        "brand": "Fortinos",
+        "brand:wikidata": "Q5472662",
+        "brand:wikipedia": "en:Fortinos",
+        "check_date": "2025-06-01",
+        "name": "Fortinos",
+        "name:tr": "süpermarket",
+        "opening_hours": "Mo-Su 07:00-21:00",
+        "phone": "+1-905-529-4290",
+        "shop": "supermarket",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.8895955,
+          43.2616844
+        ]
+      },
+      "id": "node/258607808"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/260043326",
+        "brand": "No Frills",
+        "brand:wikidata": "Q3342407",
+        "brand:wikipedia": "en:No Frills (grocery store)",
+        "building": "yes",
+        "name": "No Frills",
+        "shop": "supermarket",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.9198251,
+          43.2184197
+        ]
+      },
+      "id": "way/260043326"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/264269855",
+        "brand": "FreshCo",
+        "brand:wikidata": "Q5502915",
+        "brand:wikipedia": "en:FreshCo",
+        "building": "retail",
+        "name": "FreshCo",
+        "shop": "supermarket",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.8374016,
+          43.2265062
+        ]
+      },
+      "id": "way/264269855"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/270247889",
+        "brand": "Metro",
+        "brand:wikidata": "Q1145669",
+        "brand:wikipedia": "en:Metro Inc.",
+        "building": "retail",
+        "name": "Metro",
+        "shop": "supermarket",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.8374591,
+          43.2286468
+        ]
+      },
+      "id": "way/270247889"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/276083721",
+        "addr:city": "Burlington",
+        "addr:housenumber": "1250",
+        "addr:street": "Brant Street",
+        "alt_name": "Sobeys Extra",
+        "brand": "Sobeys",
+        "brand:wikidata": "Q1143340",
+        "brand:wikipedia": "en:Sobeys",
+        "name": "Sobeys",
+        "shop": "supermarket",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.8280779,
+          43.3441004
+        ]
+      },
+      "id": "node/276083721"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/276091459",
+        "brand": "Fortinos",
+        "brand:wikidata": "Q5472662",
+        "brand:wikipedia": "en:Fortinos",
+        "name": "Fortinos",
+        "shop": "supermarket",
+        "toilets:wheelchair": "yes",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.8226891,
+          43.3666024
+        ]
+      },
+      "id": "node/276091459"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/281350762",
+        "brand": "FreshCo",
+        "brand:wikidata": "Q5502915",
+        "brand:wikipedia": "en:FreshCo",
+        "name": "FreshCo",
+        "shop": "supermarket",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.8081894,
+          43.3787268
+        ]
+      },
+      "id": "node/281350762"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/287494329",
+        "brand": "FreshCo",
+        "brand:wikidata": "Q5502915",
+        "brand:wikipedia": "en:FreshCo",
+        "name": "FreshCo",
+        "shop": "supermarket"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.8414664,
+          43.3562768
+        ]
+      },
+      "id": "node/287494329"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/288064679",
+        "brand": "Food Basics",
+        "brand:wikidata": "Q5465300",
+        "brand:wikipedia": "en:Food Basics",
+        "name": "Food Basics",
+        "shop": "supermarket",
+        "toilets:wheelchair": "yes",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.8194313,
+          43.3639967
+        ]
+      },
+      "id": "node/288064679"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/288065231",
+        "addr:city": "Burlington",
+        "addr:housenumber": "2900",
+        "addr:postcode": "L7M 4M8",
+        "addr:street": "Walkers Line",
+        "brand": "Longo's",
+        "brand:wikidata": "Q6674182",
+        "name": "Longo's",
+        "shop": "supermarket",
+        "toilets:wheelchair": "yes",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.8225184,
+          43.3902422
+        ]
+      },
+      "id": "node/288065231"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/288341867",
+        "brand": "No Frills",
+        "brand:wikidata": "Q3342407",
+        "brand:wikipedia": "en:No Frills (grocery store)",
+        "name": "No Frills",
+        "shop": "supermarket"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.8367727,
+          43.3739726
+        ]
+      },
+      "id": "node/288341867"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/335617211",
+        "brand": "Metro",
+        "brand:wikidata": "Q1145669",
+        "brand:wikipedia": "en:Metro Inc.",
+        "name": "Metro",
+        "shop": "supermarket"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.8071422,
+          43.2306428
+        ]
+      },
+      "id": "node/335617211"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/385027447",
+        "brand": "Farm Boy",
+        "brand:wikidata": "Q5435469",
+        "name": "Farm Boy",
+        "shop": "supermarket"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.7113725,
+          43.3958128
+        ]
+      },
+      "id": "node/385027447"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/419364696",
+        "brand": "Food Basics",
+        "brand:wikidata": "Q5465300",
+        "brand:wikipedia": "en:Food Basics",
+        "check_date": "2024-10-27",
+        "name": "Food Basics",
+        "shop": "supermarket"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.7849809,
+          43.3554901
+        ]
+      },
+      "id": "node/419364696"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/419372344",
+        "brand": "Food Basics",
+        "brand:wikidata": "Q5465300",
+        "brand:wikipedia": "en:Food Basics",
+        "name": "Food Basics",
+        "opening_hours": "Mo-Su 08:00-22:00",
+        "shop": "supermarket"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.7315328,
+          43.368534
+        ]
+      },
+      "id": "node/419372344"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/442123051",
+        "addr:city": "Hamilton",
+        "addr:housenumber": "103",
+        "addr:postcode": "L8R 2V5",
+        "addr:province": "ON",
+        "addr:street": "Queen Street North",
+        "check_date": "2025-06-01",
+        "name": "B & T Food",
+        "name:zh-Hant": "邊城超級市場",
+        "shop": "supermarket"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.877875,
+          43.262458
+        ]
+      },
+      "id": "node/442123051"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/442133846",
+        "name": "Zarky's",
+        "shop": "supermarket",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.891671,
+          43.2539141
+        ]
+      },
+      "id": "node/442133846"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/442136424",
+        "addr:housenumber": "460",
+        "addr:street": "York Boulevard",
+        "check_date": "2025-06-01",
+        "contact:facebook": "https://www.facebook.com/DundurnMarket/",
+        "contact:instagram": "strathconamarkethamont",
+        "email": "hello@mrktbox.com",
+        "name": "Strathcona Market",
+        "note": "mustard seed went bankrupt 2021-08-31",
+        "opening_hours": "Mo-Su 08:00-18:00; Th-Sa 08:00-19:00",
+        "phone": "+1 289 492 2667",
+        "shop": "supermarket",
+        "website": "https://www.mrktbox.com/"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.8818709,
+          43.2660774
+        ]
+      },
+      "id": "node/442136424"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/442755688",
+        "addr:city": "Hamilton",
+        "addr:housenumber": "115",
+        "addr:province": "ON",
+        "addr:street": "Park Street North",
+        "cuisine": "asian",
+        "name": "Tan Thanh Supermarket & Houseware",
+        "opening_hours": "Su-Sa 09:30-19:30",
+        "phone": "+1-905-528-8181",
+        "shop": "supermarket"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.8708227,
+          43.261261
+        ]
+      },
+      "id": "node/442755688"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/449288917",
+        "addr:city": "Hamilton",
+        "addr:housenumber": "659",
+        "addr:postcode": "L9C 5R8",
+        "addr:street": "Upper James Street",
+        "brand": "Bulk Barn",
+        "brand:wikidata": "Q4996466",
+        "building": "yes",
+        "name": "Bulk Barn",
+        "shop": "supermarket",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.8776815,
+          43.2367081
+        ]
+      },
+      "id": "way/449288917"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/455060781",
+        "addr:city": "Burlington",
+        "addr:housenumber": "571",
+        "addr:postcode": "L7R 2G6",
+        "addr:street": "Brant Street",
+        "alt_name": "Bob's No Frills",
+        "brand": "No Frills",
+        "brand:wikidata": "Q3342407",
+        "brand:wikipedia": "en:No Frills (grocery store)",
+        "name": "No Frills",
+        "shop": "supermarket",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.8018831,
+          43.3296239
+        ]
+      },
+      "id": "node/455060781"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/498689079",
+        "brand": "Fortinos",
+        "brand:wikidata": "Q5472662",
+        "brand:wikipedia": "en:Fortinos",
+        "building": "retail",
+        "name": "Fortinos",
+        "shop": "supermarket",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.7486776,
+          43.2226351
+        ]
+      },
+      "id": "way/498689079"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/558790794",
+        "fair_trade": "yes",
+        "level": "0",
+        "name": "Goodness Me!",
+        "organic": "yes",
+        "shop": "supermarket",
+        "website": "https://goodnessme.ca/"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.8856504,
+          43.2557759
+        ]
+      },
+      "id": "node/558790794"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/621426843",
+        "brand": "Food Basics",
+        "brand:wikidata": "Q5465300",
+        "brand:wikipedia": "en:Food Basics",
+        "name": "Food Basics",
+        "shop": "supermarket"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.7584479,
+          43.2355622
+        ]
+      },
+      "id": "node/621426843"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/640687084",
+        "addr:housenumber": "640",
+        "addr:postcode": "L9C 1X6",
+        "addr:street": "Mohawk Road West",
+        "brand": "Food Basics",
+        "brand:wikidata": "Q5465300",
+        "brand:wikipedia": "en:Food Basics",
+        "name": "Food Basics",
+        "opening_hours": "Mo-Fr 08:00-21:00; Sa-Su 08:00-20:00",
+        "phone": "+1-905-388-5596",
+        "shop": "supermarket",
+        "website": "https://www.foodbasics.ca/find-a-grocery/100687"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.910613,
+          43.2339268
+        ]
+      },
+      "id": "node/640687084"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/687717559",
+        "brand": "Sobeys",
+        "brand:wikidata": "Q1143340",
+        "brand:wikipedia": "en:Sobeys",
+        "building": "retail",
+        "name": "Sobeys",
+        "shop": "supermarket",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.8146124,
+          43.1919806
+        ]
+      },
+      "id": "way/687717559"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/689919946",
+        "brand": "No Frills",
+        "brand:wikidata": "Q3342407",
+        "brand:wikipedia": "en:No Frills (grocery store)",
+        "building": "yes",
+        "name": "No Frills",
+        "shop": "supermarket",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.9130005,
+          43.3201558
+        ]
+      },
+      "id": "way/689919946"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/706238086",
+        "brand": "Fortinos",
+        "brand:wikidata": "Q5472662",
+        "brand:wikipedia": "en:Fortinos",
+        "indoor": "room",
+        "name": "Fortinos",
+        "shop": "supermarket",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.7667531,
+          43.2318888
+        ]
+      },
+      "id": "way/706238086"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/775835987",
+        "addr:housenumber": "675",
+        "addr:street": "Rymal Road East",
+        "brand": "No Frills",
+        "brand:wikidata": "Q3342407",
+        "brand:wikipedia": "en:No Frills (grocery store)",
+        "building": "yes",
+        "name": "No Frills",
+        "opening_hours": "Mo-Su 08:00-21:00",
+        "shop": "supermarket",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.8621901,
+          43.1960514
+        ]
+      },
+      "id": "way/775835987"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/781628654",
+        "addr:housenumber": "2525",
+        "addr:street": "Regional Road 56",
+        "brand": "FreshCo",
+        "brand:wikidata": "Q5502915",
+        "brand:wikipedia": "en:FreshCo",
+        "building": "yes",
+        "check_date": "2025-03-31",
+        "name": "FreshCo",
+        "opening_hours": "Mo-Fr 07:00-22:00; Sa-Su 07:00-20:00",
+        "payment:cash": "yes",
+        "payment:credit_cards": "yes",
+        "payment:debit_cards": "yes",
+        "phone": "+1 9056928027",
+        "shop": "supermarket",
+        "website": "https://freshco.com/stores/freshco-hwy-56-maggie-johnson/",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.8009793,
+          43.1247289
+        ]
+      },
+      "id": "way/781628654"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/799354564",
+        "addr:city": "Hamilton",
+        "addr:housenumber": "346",
+        "addr:postcode": "L8P 4L6",
+        "addr:street": "Dundurn Street South",
+        "building": "yes",
+        "name": "Dundurn Market",
+        "opening_hours": "Mo-Sa 08:00-18:00, Su 09:00-17:00",
+        "payment:cash": "yes",
+        "payment:credit_cards": "yes",
+        "phone": "+1-905-518-1433",
+        "shop": "supermarket",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.8929404,
+          43.2512525
+        ]
+      },
+      "id": "way/799354564"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/826119483",
+        "addr:city": "Ancaster",
+        "addr:housenumber": "71",
+        "addr:postcode": "L9G 1N1",
+        "addr:province": "Ontario",
+        "addr:street": "Wilson Street West",
+        "brand": "Food Basics",
+        "brand:wikidata": "Q5465300",
+        "brand:wikipedia": "en:Food Basics",
+        "name": "Food Basics",
+        "opening_hours": "Mo-Fr 08:00-21:00, Sa-Su 08:00-20:00",
+        "phone": "+1-905-648-9333",
+        "shop": "supermarket"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.9903975,
+          43.2171303
+        ]
+      },
+      "id": "node/826119483"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1356846123",
+        "name": "Bernandino's Fresh Market Place",
+        "shop": "supermarket"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.8574137,
+          43.3037255
+        ]
+      },
+      "id": "node/1356846123"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1485809555",
+        "brand": "Food Basics",
+        "brand:wikidata": "Q5465300",
+        "brand:wikipedia": "en:Metro Inc.",
+        "name": "Food Basics",
+        "shop": "supermarket"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.8792365,
+          43.2298654
+        ]
+      },
+      "id": "node/1485809555"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1620546566",
+        "brand": "Food Basics",
+        "brand:wikidata": "Q5465300",
+        "brand:wikipedia": "en:Food Basics",
+        "name": "Food Basics",
+        "shop": "supermarket"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.8716149,
+          43.1981921
+        ]
+      },
+      "id": "node/1620546566"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1713586894",
+        "addr:city": "Burlington",
+        "addr:housenumber": "777",
+        "addr:postcode": "L7R 3N2",
+        "addr:street": "Guelph Line",
+        "addr:unit": "M015",
+        "name": "Denninger's Foods of the World",
+        "opening_hours": "Su 10:00-20:00, Mo-Fr 09:00-21:00, Sa 08:00-21:00",
+        "phone": "+1-905-639-0510",
+        "shop": "supermarket",
+        "website": "https://www.denningers.com/"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.7942107,
+          43.3472177
+        ]
+      },
+      "id": "node/1713586894"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1713655329",
+        "addr:city": "Burlington",
+        "addr:housenumber": "4025",
+        "addr:postcode": "L7L 1S8",
+        "addr:province": "ON",
+        "addr:street": "New Street",
+        "name": "Marilu's Market",
+        "opening_hours": "Mo-Sa 08:00-19:00; Su 09:00-18:00",
+        "phone": "+1 905-639-0319",
+        "shop": "supermarket",
+        "website": "https://marilusmarket.com",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.7694457,
+          43.3539743
+        ]
+      },
+      "id": "node/1713655329"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1887349039",
+        "name": "Lococo's",
+        "shop": "supermarket"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.7644115,
+          43.2385541
+        ]
+      },
+      "id": "node/1887349039"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1993662305",
+        "brand": "Metro",
+        "brand:wikidata": "Q1145669",
+        "brand:wikipedia": "en:Metro Inc.",
+        "name": "Metro",
+        "shop": "supermarket",
+        "store_name": "Dundas Valley"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.9538896,
+          43.2635059
+        ]
+      },
+      "id": "node/1993662305"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2152049526",
+        "name": "Binbrook Food Market",
+        "shop": "supermarket"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.8045494,
+          43.1202256
+        ]
+      },
+      "id": "node/2152049526"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2282221079",
+        "brand": "Fortinos",
+        "brand:wikidata": "Q5472662",
+        "brand:wikipedia": "en:Fortinos",
+        "name": "Fortinos",
+        "shop": "supermarket"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.9027066,
+          43.3347621
+        ]
+      },
+      "id": "node/2282221079"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2565744556",
+        "check_date": "2024-11-21",
+        "name": "Busy Bee",
+        "shop": "supermarket"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.8202564,
+          43.2423815
+        ]
+      },
+      "id": "node/2565744556"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2639058393",
+        "brand": "Bulk Barn",
+        "brand:wikidata": "Q4996466",
+        "brand:wikipedia": "en:Bulk Barn",
+        "name": "Bulk Barn",
+        "shop": "supermarket"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.8114245,
+          43.2507402
+        ]
+      },
+      "id": "node/2639058393"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2707148173",
+        "brand": "Fortinos",
+        "brand:wikidata": "Q5472662",
+        "brand:wikipedia": "en:Fortinos",
+        "name": "Fortinos",
+        "shop": "supermarket",
+        "toilets:wheelchair": "yes",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.7533374,
+          43.3698466
+        ]
+      },
+      "id": "node/2707148173"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2804958421",
+        "check_date": "2023-09-15",
+        "description": "Formally Scholar's Choice",
+        "diet:fresh": "yes",
+        "diet:halal": "yes",
+        "diet:meat": "yes",
+        "name": "Eastern Food Market",
+        "note": "Butcher has different closing time",
+        "opening_hours": "Mo-Tu 09:00-21:00; We-Sa 09:00-24:00; Su 09:00-20:00",
+        "phone": "+1 2897553663",
+        "shop": "supermarket",
+        "website": "https://easternfoodmarket.ca/"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.8643393,
+          43.2194344
+        ]
+      },
+      "id": "node/2804958421"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2811199701",
+        "addr:city": "Hamilton",
+        "addr:housenumber": "2",
+        "addr:postcode": "L8P 1A2",
+        "addr:province": "ON",
+        "addr:street": "King Street West",
+        "addr:unit": "Unit 445",
+        "air_conditioning": "yes",
+        "brand": "Nations Fresh Foods",
+        "check_date": "2025-06-01",
+        "level": "1",
+        "name": "Nations Fresh Foods",
+        "opening_hours": "Mo-Su 09:00-20:45",
+        "payment:alipay": "yes",
+        "payment:cash": "yes",
+        "payment:interac": "yes",
+        "payment:unionpay": "yes",
+        "payment:wechat": "yes",
+        "phone": "+19055258188",
+        "shop": "supermarket",
+        "start_date": "2013-07-13",
+        "website": "https://nationsfreshfoods.ca/"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.8727588,
+          43.2584366
+        ]
+      },
+      "id": "node/2811199701"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2815756102",
+        "name": "Duarte's Supermarket",
+        "shop": "supermarket"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.8477079,
+          43.2596777
+        ]
+      },
+      "id": "node/2815756102"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2937634056",
+        "brand": "FreshCo",
+        "brand:wikidata": "Q5502915",
+        "brand:wikipedia": "en:FreshCo",
+        "name": "FreshCo",
+        "shop": "supermarket"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.7717729,
+          43.2284758
+        ]
+      },
+      "id": "node/2937634056"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3272251418",
+        "name": "Lococo's",
+        "shop": "supermarket"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.8409442,
+          43.1882838
+        ]
+      },
+      "id": "node/3272251418"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3272251423",
+        "name": "Zarky's",
+        "shop": "supermarket"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.8390283,
+          43.1947181
+        ]
+      },
+      "id": "node/3272251423"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3274128147",
+        "addr:city": "Hamilton",
+        "addr:housenumber": "905",
+        "addr:postcode": "L8W 3M2",
+        "addr:province": "ON",
+        "addr:street": "Rymal Road East",
+        "brand": "FreshCo",
+        "brand:wikidata": "Q5502915",
+        "brand:wikipedia": "en:FreshCo",
+        "name": "FreshCo",
+        "opening_hours": "Mo-Su 07:00-22:00",
+        "phone": "+1 905-383-9930",
+        "shop": "supermarket",
+        "website": "https://freshco.com/stores/freshco-rymal-upper-gage/"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.8522329,
+          43.1930934
+        ]
+      },
+      "id": "node/3274128147"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3366069921",
+        "brand": "Fortinos",
+        "brand:wikidata": "Q5472662",
+        "brand:wikipedia": "en:Fortinos",
+        "name": "Fortinos",
+        "shop": "supermarket"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.8938679,
+          43.2049741
+        ]
+      },
+      "id": "node/3366069921"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3464174975",
+        "addr:city": "Hamilton",
+        "addr:housenumber": "318",
+        "addr:street": "Dundas Street East",
+        "name": "Leylands British Foods",
+        "phone": "+1-905-690-9539",
+        "shop": "supermarket",
+        "website": "http://www.leylandsbritishfoods.ca/"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.8919776,
+          43.3339484
+        ]
+      },
+      "id": "node/3464174975"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3985385457",
+        "name": "Africco Global Market",
+        "shop": "supermarket"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.8637264,
+          43.2550583
+        ]
+      },
+      "id": "node/3985385457"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4020068161",
+        "name": "Denninger's Foods Of The World",
+        "shop": "supermarket",
+        "website": "https://www.denningers.com/"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.7100835,
+          43.3955168
+        ]
+      },
+      "id": "node/4020068161"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4535627900",
+        "addr:city": "Hamilton",
+        "addr:housenumber": "184",
+        "addr:postcode": "L8G 1C3",
+        "addr:street": "Highway 8",
+        "addr:unit": "G",
+        "fax": "+1-905-662-8932",
+        "name": "Nardini Specialties",
+        "phone": "+1-905-662-5758",
+        "shop": "supermarket",
+        "website": "https://www.nardinispecialties.ca/"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.7418983,
+          43.2223388
+        ]
+      },
+      "id": "node/4535627900"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4772010634",
+        "name": "Desi Mandi",
+        "opening_hours": "Mo-Su 09:00-22:00",
+        "shop": "supermarket",
+        "website": "https://desimandi.ca/"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.8189273,
+          43.3461244
+        ]
+      },
+      "id": "node/4772010634"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4819936621",
+        "check_date": "2025-10-25",
+        "name": "Starsky",
+        "name:en": "Starsky",
+        "shop": "supermarket"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.7727113,
+          43.2304859
+        ]
+      },
+      "id": "node/4819936621"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/5367009643",
+        "brand": "Bulk Barn",
+        "brand:wikidata": "Q4996466",
+        "brand:wikipedia": "en:Bulk Barn",
+        "name": "Bulk Barn",
+        "shop": "supermarket"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.7662464,
+          43.2277441
+        ]
+      },
+      "id": "node/5367009643"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/5444146092",
+        "name": "Punjab Food Market",
+        "shop": "supermarket"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.7634241,
+          43.2276005
+        ]
+      },
+      "id": "node/5444146092"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/5444146291",
+        "name": "Denningers Food Store",
+        "shop": "supermarket"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.7624397,
+          43.2268436
+        ]
+      },
+      "id": "node/5444146291"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/5554615759",
+        "addr:city": "Hamilton",
+        "addr:housenumber": "801",
+        "addr:postcode": "L9C 5V8",
+        "addr:street": "Mohawk Road West",
+        "brand": "Farm Boy",
+        "brand:wikidata": "Q5435469",
+        "brand:wikipedia": "en:Farm Boy",
+        "name": "Farm Boy",
+        "shop": "supermarket",
+        "website": "https://www.farmboy.ca/hamilton/",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.9235966,
+          43.2331723
+        ]
+      },
+      "id": "node/5554615759"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/7060850400",
+        "brand": "Farm Boy",
+        "brand:wikidata": "Q5435469",
+        "brand:wikipedia": "en:Farm Boy",
+        "name": "Farm Boy",
+        "shop": "supermarket",
+        "start_date": "2019-12-15"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.8247607,
+          43.3934668
+        ]
+      },
+      "id": "node/7060850400"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/7061164007",
+        "addr:city": "Burlington",
+        "addr:housenumber": "3230",
+        "addr:postcode": "L7N 3H5",
+        "addr:province": "Ontario",
+        "addr:street": "Fairview Street",
+        "brand": "Farm Boy",
+        "brand:wikidata": "Q5435469",
+        "check_date": "2025-05-18",
+        "name": "Farm Boy",
+        "note": "former Pier 1 Imports",
+        "opening_hours": "Mo-Fr 08:00-21:00; Sa-Su 08:00-20:00",
+        "phone": "+1-905-633-8044",
+        "shop": "supermarket",
+        "website": "https://www.farmboy.ca/stores/burlington-south/"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.7886164,
+          43.3518338
+        ]
+      },
+      "id": "node/7061164007"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/7092015760",
+        "brand": "Bulk Barn",
+        "brand:wikidata": "Q4996466",
+        "brand:wikipedia": "en:Bulk Barn",
+        "name": "Bulk Barn",
+        "shop": "supermarket"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.8968237,
+          43.332523
+        ]
+      },
+      "id": "node/7092015760"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/7237611849",
+        "brand": "Bulk Barn",
+        "brand:wikidata": "Q4996466",
+        "brand:wikipedia": "en:Bulk Barn",
+        "name": "Bulk Barn",
+        "shop": "supermarket"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.9432615,
+          43.2588805
+        ]
+      },
+      "id": "node/7237611849"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/7237741005",
+        "addr:city": "Hamilton",
+        "addr:housenumber": "284",
+        "addr:postcode": "L8N 1B7",
+        "addr:province": "ON",
+        "addr:street": "King Street East",
+        "name": "Denninger's",
+        "opening_hours": "Mo-Fr 09:00-18:00, Sa 08:00-18:00, Su 10:00-17:00",
+        "phone": "+1-905-528-8468",
+        "shop": "supermarket"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.8874877,
+          43.2128346
+        ]
+      },
+      "id": "node/7237741005"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/7237748711",
+        "brand": "Bulk Barn",
+        "brand:wikidata": "Q4996466",
+        "brand:wikipedia": "en:Bulk Barn",
+        "name": "Bulk Barn",
+        "shop": "supermarket"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.891194,
+          43.2089098
+        ]
+      },
+      "id": "node/7237748711"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/7256393813",
+        "brand": "FreshCo",
+        "brand:wikidata": "Q5502915",
+        "brand:wikipedia": "en:FreshCo",
+        "name": "FreshCo",
+        "shop": "supermarket",
+        "source": "CanVec_Import_2009"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.8268479,
+          43.2548088
+        ]
+      },
+      "id": "node/7256393813"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/7292211981",
+        "brand": "Metro",
+        "brand:wikidata": "Q1145669",
+        "brand:wikipedia": "en:Metro Inc.",
+        "name": "Metro",
+        "shop": "supermarket"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.6414583,
+          43.2148079
+        ]
+      },
+      "id": "node/7292211981"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/7631217906",
+        "brand": "No Frills",
+        "brand:wikidata": "Q3342407",
+        "brand:wikipedia": "en:No Frills (grocery store)",
+        "name": "No Frills",
+        "shop": "supermarket"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.7764716,
+          43.2295372
+        ]
+      },
+      "id": "node/7631217906"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/7632579186",
+        "name": "Samir Supermarket",
+        "shop": "supermarket"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.7650654,
+          43.2272999
+        ]
+      },
+      "id": "node/7632579186"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/7778268271",
+        "addr:housenumber": "91",
+        "addr:street": "James Street North",
+        "check_date": "2025-06-01",
+        "contact:instagram": "latinfoodshamilton",
+        "email": "latinfoodshamilton@gmail.com",
+        "name": "Latin Food & Products",
+        "opening_hours": "Mo,Su 11:00-19:00; Tu-Sa 09:00-20:00",
+        "phone": "+1 289 389 3978",
+        "shop": "supermarket",
+        "website": "https://www.latinfoodshamilton.com"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.8680607,
+          43.2592835
+        ]
+      },
+      "id": "node/7778268271"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/8045373935",
+        "check_date": "2025-06-01",
+        "name": "Somali Market",
+        "shop": "supermarket"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.8719586,
+          43.2619357
+        ]
+      },
+      "id": "node/8045373935"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/8104115453",
+        "name": "Mama Africa Tropical Foods & Hair Products",
+        "shop": "supermarket"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.8489322,
+          43.2561247
+        ]
+      },
+      "id": "node/8104115453"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/8140447432",
+        "name": "Africco Global Market",
+        "shop": "supermarket"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.8513975,
+          43.2606387
+        ]
+      },
+      "id": "node/8140447432"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/8322601316",
+        "addr:housenumber": "1004",
+        "addr:street": "Upper Wentworth Street",
+        "name": "Eastern Food Market",
+        "opening_hours": "Mo-Sa 09:30-20:00; Su 10:00-19:00",
+        "shop": "supermarket",
+        "website": "http://www.easternfoodmarket.com/"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.8656207,
+          43.2171784
+        ]
+      },
+      "id": "node/8322601316"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/8684303098",
+        "addr:city": "Burlington",
+        "addr:housenumber": "476",
+        "addr:postcode": "L7R 2G4",
+        "addr:province": "ON",
+        "addr:street": "Brant Street",
+        "name": "Painters Burlington",
+        "operator": "Alex Keller",
+        "phone": "+1 289-203-2286",
+        "shop": "supermarket",
+        "website": "https://painters-burlington.ca/"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.8000376,
+          43.3270459
+        ]
+      },
+      "id": "node/8684303098"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/8951491676",
+        "name": "Samir Halal Foods",
+        "shop": "supermarket"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.8814702,
+          43.230223
+        ]
+      },
+      "id": "node/8951491676"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/9416154274",
+        "addr:housenumber": "245",
+        "addr:street": "James Street North",
+        "name": "Lola Latin Grocery",
+        "opening_hours": "Tu-Sa 09:00-21:00; Su 10:00-20:00",
+        "shop": "supermarket",
+        "website": "https://www.instagram.com/lolalatingrocery/"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.8664843,
+          43.2628893
+        ]
+      },
+      "id": "node/9416154274"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/9564973317",
+        "addr:city": "Hamilton",
+        "addr:housenumber": "337",
+        "addr:street": "Barton Street East",
+        "name": "Barton Lettuce",
+        "opening_hours": "Mo-Su 10:00-18:30",
+        "phone": "+1 365-925-0117",
+        "shop": "supermarket",
+        "website": "https://bartonlettuce.com"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.8511907,
+          43.2606451
+        ]
+      },
+      "id": "node/9564973317"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/9690468317",
+        "addr:housenumber": "35",
+        "addr:street": "York Boulevard",
+        "email": "rosasgourmetfood@gmail.com",
+        "facebook": "https://www.facebook.com/rosasgourmetfood",
+        "instagram": "https://www.instagram.com/rosasgourmetfood/",
+        "internet_access": "wlan",
+        "name": "Rosa’s Gourmet Food",
+        "opening_hours": "Tu, Th-Sa 09:00-16:00",
+        "payment:cash": "yes",
+        "shop": "supermarket",
+        "website": "https://hamiltonfarmersmarket.ca/vendors/ercilias-fine-foods/"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.8702408,
+          43.2588352
+        ]
+      },
+      "id": "node/9690468317"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/9951488355",
+        "addr:city": "Ancaster",
+        "addr:housenumber": "44",
+        "addr:postcode": "L9G 1N2",
+        "addr:province": "Ontario",
+        "addr:street": "Wilson Street West",
+        "brand": "Bulk Barn",
+        "brand:wikidata": "Q4996466",
+        "name": "Bulk Barn",
+        "opening_hours": "Mo-Sa 09:30-21:00, Su 10:00-18:00",
+        "phone": "+1-289-443-9645",
+        "shop": "supermarket"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.9882072,
+          43.2165219
+        ]
+      },
+      "id": "node/9951488355"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11038161694",
+        "addr:housenumber": "398",
+        "addr:postcode": "L9A1B7",
+        "addr:street": "Concession Street",
+        "cuisine": "mexican",
+        "name": "Mi Ranchito",
+        "phone": "+1 905-385-9999",
+        "shop": "supermarket",
+        "wheelchair": "limited"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.8588966,
+          43.2425548
+        ]
+      },
+      "id": "node/11038161694"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11440117270",
+        "brand": "Food Basics",
+        "brand:wikidata": "Q5465300",
+        "name": "Food Basics",
+        "shop": "supermarket"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.8415732,
+          43.2184103
+        ]
+      },
+      "id": "node/11440117270"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11705808701",
+        "brand": "FreshCo",
+        "brand:wikidata": "Q5502915",
+        "name": "FreshCo",
+        "shop": "supermarket"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.7953432,
+          43.2477378
+        ]
+      },
+      "id": "node/11705808701"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11869088776",
+        "addr:city": "Burlington",
+        "addr:housenumber": "699",
+        "addr:postcode": "L7R 3M7",
+        "addr:province": "ON",
+        "addr:street": "Guelph Line",
+        "diet:halal": "yes",
+        "email": "shop@samirsupermarket.ca",
+        "name": "Samir Supermarket",
+        "opening_hours": "Mo-Su 09:00-21:00",
+        "phone": "+1 905-333-5222",
+        "shop": "supermarket",
+        "website": "https://samirsupermarket.ca/"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.7934863,
+          43.3448538
+        ]
+      },
+      "id": "node/11869088776"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11869968144",
+        "addr:housenumber": "20",
+        "addr:postcode": "L8P 0C4",
+        "addr:street": "George Street",
+        "diet:halal": "yes",
+        "name": "Samir Supermarket",
+        "opening_hours": "Mo-Su 09:00-24:00",
+        "phone": "+1-905-777-9444",
+        "shop": "supermarket",
+        "website": "https://www.samirsupermarkets.ca/",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.8758425,
+          43.2577634
+        ]
+      },
+      "id": "node/11869968144"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11869968145",
+        "addr:housenumber": "165",
+        "addr:postcode": "L8P 3A2",
+        "addr:street": "James Street South",
+        "check_date": "2024-06-27",
+        "level": "0",
+        "name": "The Market on James",
+        "opening_hours": "24/7",
+        "payment:cash": "yes",
+        "payment:credit_cards": "yes",
+        "payment:debit_cards": "yes",
+        "shop": "supermarket",
+        "toilets": "yes",
+        "website": "https://hastymarketcorp.com/the-market-on-james/",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.8710628,
+          43.2517659
+        ]
+      },
+      "id": "node/11869968145"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11973567926",
+        "name": "Swadesh Supermarket",
+        "shop": "supermarket"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.7753418,
+          43.3648521
+        ]
+      },
+      "id": "node/11973567926"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/12092003189",
+        "brand": "Bulk Barn",
+        "brand:wikidata": "Q4996466",
+        "name": "Bulk Barn",
+        "shop": "supermarket"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.6412061,
+          43.2160394
+        ]
+      },
+      "id": "node/12092003189"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/12518691545",
+        "addr:city": "Hamilton",
+        "addr:housenumber": "128",
+        "addr:province": "Ontario",
+        "addr:street": "Parkdale Avenue North",
+        "name": "Across The Pond British Imports",
+        "phone": "+1-905-312-8617",
+        "shop": "supermarket"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.7901611,
+          43.2399839
+        ]
+      },
+      "id": "node/12518691545"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13157151499",
+        "addr:city": "Hamilton",
+        "addr:housenumber": "204",
+        "addr:postcode": "L8H 3Z5",
+        "addr:province": "Ontario",
+        "addr:street": "Ottawa Street North",
+        "drink:coffee": "yes",
+        "food": "yes",
+        "name": "Ottawa Market",
+        "opening_hours": "Mo-Su 08:00-18:00",
+        "phone": "+1-289-246-9239",
+        "shop": "supermarket",
+        "toilets": "yes",
+        "website": "https://www.mrtkbox.com"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.8173128,
+          43.2480993
+        ]
+      },
+      "id": "node/13157151499"
+    }
+  ]
+}
