@@ -1,0 +1,18 @@
+# --- Core API Framework ---
+fastapi>=0.109.0
+uvicorn[standard]>=0.27.0   # The server that runs your API
+
+# --- Database & GeoSpatial (The "Brain") ---
+sqlalchemy>=2.0.25          # ORM to talk to the DB in Python
+geoalchemy2>=0.14.3         # Adds "PostGIS" support to SQLAlchemy
+asyncpg>=0.29.0             # Async driver for PostgreSQL (High performance)
+psycopg2-binary>=2.9.9      # Standard driver (Required for Alembic migrations)
+alembic>=1.13.1             # Database migration tool (like Git for your DB)
+
+# --- Configuration & Environment ---
+pydantic>=2.5.3             # Data validation
+pydantic-settings>=2.1.0    # To read your .env file safely
+python-dotenv>=1.0.1        # Loads variables from .env
+
+# --- External Data Fetching (For HSR & Recalls) ---
+httpx>=0.26.0               # Async HTTP client (Better than 'requests' for FastAPI)
