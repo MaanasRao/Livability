@@ -4,11 +4,12 @@ import MapView, { Marker, Polygon, PROVIDER_DEFAULT } from 'react-native-maps';
 import * as Location from 'expo-location';
 import FAB from '../components/ui/FAB';
 import ReportModal from '../components/ReportModal';
+import DisclaimerModal from '../components/DisclaimerModal';
 
 // ⚠️ Ensure this matches your backend computer's local IP address
 const API_URL = 'http://192.168.2.34:8000'; 
 
-// 💰 RENT DATA (Hardcoded for 100% Coverage)
+// 💰 RENT ZONES (Hardcoded for 100% Coverage)
 const RENT_ZONES = [
   { name: "Downtown Core", lat: 43.256, lng: -79.868, p1: 1398, p2: 1643 },
   { name: "Central East", lat: 43.252, lng: -79.835, p1: 1102, p2: 1291 },
@@ -49,7 +50,7 @@ export default function MapScreen() {
         closest = zone;
       }
     });
-    return `💰 ${closest.name}\n   1BR: $${closest.p1} | 2BR: $${closest.p2}`;
+    return `💰 ${closest.name} (Zonal Avg)\n   1BR: $${closest.p1} | 2BR: $${closest.p2}`;
   };
 
   const generateGrid = (allEvents: any[]) => {
@@ -85,7 +86,7 @@ export default function MapScreen() {
         weight = 2; 
       }
 
-      // --- 🔴 NEGATIVE FACTORS ---
+      // --- 🔴 NEGATIVE FACTORS (Infrastructure) ---
       else if (event.type === 'industrial') { 
         label = '🏭 Industrial (-5)'; 
         weight = -5; 
@@ -97,6 +98,24 @@ export default function MapScreen() {
       else if (event.type === 'traffic') { 
         label = '🚗 Traffic (-3)'; 
         weight = -3; 
+      }
+
+      // --- 🔴 COMMUNITY REPORTS (User Feedback) ---
+      else if (event.type === 'noise_complaint') {
+        label = '📢 Reported Noise (-2)';
+        weight = -2;
+      }
+      else if (event.type === 'poor_lighting') {
+        label = '💡 Dark/Unlit Area (-1)';
+        weight = -1;
+      }
+      else if (event.type === 'trash_dump') {
+        label = '🗑️ Trash Complaint (-1)';
+        weight = -1;
+      }
+      else if (event.type === 'safety_hazard') {
+        label = '⚠️ Safety Concern (-3)';
+        weight = -3;
       }
 
       if (label && !grid[key].details.includes(label)) {
@@ -148,7 +167,11 @@ export default function MapScreen() {
     try {
       const response = await fetch(`${API_URL}/events`);
       const data = await response.json();
-      const reports = data.filter((e: any) => ['noise', 'safety'].includes(e.type));
+      
+      // Filter for pins we want to show physically on map (Community Reports)
+      const reports = data.filter((e: any) => 
+        ['noise_complaint', 'safety_hazard', 'poor_lighting', 'trash_dump'].includes(e.type)
+      );
       setUserReports(reports);
       generateGrid(data);
     } catch (error) { console.error("Error fetching events:", error); }
@@ -161,6 +184,8 @@ export default function MapScreen() {
     let { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== 'granted') return;
     let loc = await Location.getCurrentPositionAsync({});
+    
+    // Add jitter so pins don't stack perfectly
     const jitter = (Math.random() - 0.5) * 0.0005;
     
     try {
@@ -171,11 +196,11 @@ export default function MapScreen() {
           type: type,
           lat: loc.coords.latitude + jitter,
           lng: loc.coords.longitude + jitter,
-          description: `User reported ${type}`,
+          description: `Community Report: ${type}`,
           weight: 1 
         }),
       });
-      fetchEvents();
+      fetchEvents(); // Refresh immediately
     } catch (error) { console.error(error); }
   };
 
@@ -210,7 +235,7 @@ export default function MapScreen() {
                 if (poly.score < 0) status = "⚠️ Caution Area";
                 
                 const reasonText = poly.reasons.length > 0 
-                    ? poly.reasons.join('\n\n') // Double newline for clarity
+                    ? poly.reasons.join('\n\n') 
                     : "Standard residential area.";
 
                 Alert.alert(
@@ -225,7 +250,8 @@ export default function MapScreen() {
           <Marker
             key={event.id}
             coordinate={{ latitude: event.lat, longitude: event.lng }}
-            pinColor={event.type === 'safety' ? 'gold' : 'red'}
+            pinColor={event.type === 'safety_hazard' ? 'red' : 'gold'}
+            title={event.description}
           />
         ))}
       </MapView>
@@ -243,16 +269,17 @@ export default function MapScreen() {
         <View style={styles.divider} />
         <View style={styles.legendItem}>
           <View style={[styles.legendCircle, { backgroundColor: 'gold' }]} />
-          <Text style={styles.legendText}>Report: Safe</Text>
+          <Text style={styles.legendText}>Report: Minor Issue</Text>
         </View>
         <View style={styles.legendItem}>
           <View style={[styles.legendCircle, { backgroundColor: 'red' }]} />
-          <Text style={styles.legendText}>Report: Danger</Text>
+          <Text style={styles.legendText}>Report: Safety Hazard</Text>
         </View>
       </View>
 
       <FAB onPress={handleReportPress} />
       <ReportModal visible={modalVisible} onClose={() => setModalVisible(false)} onSubmit={handleSubmit} />
+      <DisclaimerModal />
     </View>
   );
 }
