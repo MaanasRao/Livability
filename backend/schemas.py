@@ -1,22 +1,32 @@
 from pydantic import BaseModel
-from datetime import datetime
 from typing import Optional
+from datetime import datetime
 
-class EventCreate(BaseModel):
+# --- Events ---
+class EventBase(BaseModel):
     type: str
     description: str
     lat: float
     lng: float
-    weight: Optional[int] = 0 # <--- Add this
+    weight: int
 
-class EventResponse(BaseModel):
+class EventCreate(EventBase):
+    pass
+
+class EventResponse(EventBase):
+    id: int
+    class Config:
+        orm_mode = True
+
+# --- User Reports ---
+class UserReportCreate(BaseModel):
+    type: str
+    lat: float
+    lng: float
+    description: Optional[str] = None
+
+class UserReportResponse(UserReportCreate):
     id: int
     created_at: datetime
-    type: str
-    description: str
-    lat: float
-    lng: float
-    weight: int # <--- Add this
-
     class Config:
         orm_mode = True
