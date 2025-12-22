@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, View, Text, Alert, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, Text, Alert, TouchableOpacity, Animated, ActivityIndicator } from 'react-native';
 import MapView, { Marker, Polygon, PROVIDER_DEFAULT } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { Ionicons } from '@expo/vector-icons'; 
@@ -7,6 +7,7 @@ import FAB from '../components/ui/FAB';
 import ReportModal from '../components/ReportModal';
 import DisclaimerModal from '../components/DisclaimerModal';
 
+// ⚠️ CONFIGURATION
 const API_URL = 'http://192.168.2.34:8000'; 
 
 const RENT_ZONES = [
@@ -23,17 +24,40 @@ const RENT_ZONES = [
 
 export default function MapScreen() {
   const mapRef = useRef<MapView>(null);
+  
+  // -- STATE --
   const [modalVisible, setModalVisible] = useState(false);
   const [gridPolygons, setGridPolygons] = useState<any[]>([]);
   const [userReports, setUserReports] = useState<any[]>([]);
-  const [selectedReport, setSelectedReport] = useState<any>(null);
+  const [selectedBlock, setSelectedBlock] = useState<any>(null);
   
-  // 🆕 Loading State
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  // 🆕 LOADING & DISCLAIMER STATES
+  const [isMapReady, setIsMapReady] = useState(false); 
+  const [isDataLoaded, setIsDataLoaded] = useState(false); 
+  const [isSubmitting, setIsSubmitting] = useState(false); 
+  const [showDisclaimer, setShowDisclaimer] = useState(false); // Controls Disclaimer visibility
+
+  // Animation for Card
+  const slideAnim = useRef(new Animated.Value(500)).current; 
 
   const HAMILTON_REGION = { latitude: 43.2557, longitude: -79.8711, latitudeDelta: 0.08, longitudeDelta: 0.08 };
-  const GRID_SIZE = 0.005;
+  const GRID_SIZE = 0.009; 
 
+  // Check overall loading status
+  const isLoading = !isMapReady || !isDataLoaded;
+
+  // ⚡️ TRIGGER DISCLAIMER AFTER LOADING
+  useEffect(() => {
+    if (!isLoading) {
+      // Wait 500ms after loading finishes to show the modal (Smooth UX)
+      const timer = setTimeout(() => {
+        setShowDisclaimer(true);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [isLoading]);
+
+  // --- 1. RENT HELPER ---
   const getRentForBlock = (lat: number, lng: number) => {
     let closest = RENT_ZONES[0];
     let minDist = 9999;
@@ -41,16 +65,20 @@ export default function MapScreen() {
       const dist = Math.sqrt(Math.pow(zone.lat - lat, 2) + Math.pow(zone.lng - lng, 2));
       if (dist < minDist) { minDist = dist; closest = zone; }
     });
-    return `💰 ${closest.name}\n   1BR: $${closest.p1} | 2BR: $${closest.p2}`;
+    return closest;
   };
 
+  // --- 2. GRID GENERATION ---
   const generateGrid = (staticEvents: any[]) => {
     if (!Array.isArray(staticEvents)) return;
     const grid: { [key: string]: { score: number, details: string[] } } = {};
 
     staticEvents.forEach((event) => {
       if (!event.lat || !event.lng) return;
-      const key = `${Math.floor(event.lng / GRID_SIZE)},${Math.floor(event.lat / GRID_SIZE)}`;
+      const gridX = Math.floor(event.lng / GRID_SIZE);
+      const gridY = Math.floor(event.lat / GRID_SIZE);
+      const key = `${gridX},${gridY}`;
+
       if (!grid[key]) grid[key] = { score: 0, details: [] };
 
       let label = "";
@@ -72,6 +100,7 @@ export default function MapScreen() {
     const polygons = Object.keys(grid).map((key) => {
       const [gx, gy] = key.split(',').map(Number);
       const { score, details } = grid[key];
+      
       let fillColor = 'transparent'; 
       if (score >= 5) fillColor = 'rgba(0, 255, 0, 0.4)';         
       else if (score > 0) fillColor = 'rgba(144, 238, 144, 0.4)'; 
@@ -82,9 +111,14 @@ export default function MapScreen() {
 
       const minLng = gx * GRID_SIZE;
       const minLat = gy * GRID_SIZE;
-      const rentInfo = getRentForBlock(minLat, minLng);
+      const rentData = getRentForBlock(minLat, minLng);
+
       return {
-        id: key, score, reasons: [rentInfo, ...details], color: fillColor,
+        id: key, 
+        score, 
+        rent: rentData,
+        reasons: details, 
+        color: fillColor,
         coordinates: [
           { latitude: minLat, longitude: minLng },
           { latitude: minLat + GRID_SIZE, longitude: minLng },
@@ -93,22 +127,29 @@ export default function MapScreen() {
         ]
       };
     }).filter(Boolean);
+    
     setGridPolygons(polygons);
   };
 
   const fetchData = async () => {
     try {
-      const staticRes = await fetch(`${API_URL}/events`);
+      const [staticRes, reportsRes] = await Promise.all([
+        fetch(`${API_URL}/events`),
+        fetch(`${API_URL}/user_reports`)
+      ]);
+
       if (staticRes.ok) generateGrid(await staticRes.json());
-      const reportsRes = await fetch(`${API_URL}/user_reports`);
       if (reportsRes.ok) setUserReports(await reportsRes.json());
-    } catch (e) { console.error("Fetch error:", e); }
+      
+    } catch (e) { 
+      console.error("Fetch error:", e); 
+    } finally {
+      setIsDataLoaded(true);
+    }
   };
 
   const handleSubmit = async (reportData: any) => {
-    // 1. START LOADING
     setIsSubmitting(true);
-    
     let { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== 'granted') {
         Alert.alert("Permission denied", "We need location access to drop the pin.");
@@ -120,7 +161,6 @@ export default function MapScreen() {
     const jitter = (Math.random() - 0.5) * 0.0005;
     
     try {
-      // 2. SEND DATA
       await fetch(`${API_URL}/user_reports`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -131,73 +171,118 @@ export default function MapScreen() {
           description: reportData.description
         }),
       });
-      
-      // 3. REFRESH MAP
       await fetchData(); 
-      
-      // 4. SHOW SUCCESS
       Alert.alert("Success", "Your report has been pinned to the map! 📍");
-      setModalVisible(false); // Close only on success
+      setModalVisible(false); 
     } catch (e) { 
-      Alert.alert("Error", "Failed to submit report. Please try again.");
+      Alert.alert("Error", "Failed to submit report.");
       console.error(e); 
     } finally {
-      // 5. STOP LOADING
       setIsSubmitting(false);
     }
   };
 
-  const handleResolve = async () => {
-    if (!selectedReport) return;
-    Alert.alert("Resolve Issue?", "Is this issue fixed?", [
-      { text: "Cancel", style: "cancel" },
-      { text: "Yes", style: "destructive", onPress: async () => {
-          try {
-            await fetch(`${API_URL}/user_reports?id=${selectedReport.id}`, { method: 'DELETE' });
-            setSelectedReport(null);
-            fetchData();
-          } catch(e) { console.error(e); }
-        } 
-      }
-    ]);
-  };
-
   useEffect(() => { fetchData(); }, []);
+
+  useEffect(() => {
+    if (selectedBlock) {
+      Animated.spring(slideAnim, { toValue: 0, useNativeDriver: true, friction: 8 }).start();
+    } else {
+      Animated.timing(slideAnim, { toValue: 500, duration: 250, useNativeDriver: true }).start();
+    }
+  }, [selectedBlock, slideAnim]);
 
   return (
     <View style={styles.container}>
+      
       <MapView
-        ref={mapRef} style={styles.map} initialRegion={HAMILTON_REGION} showsUserLocation={true} provider={PROVIDER_DEFAULT}
-        onPress={() => setSelectedReport(null)}
+        ref={mapRef} 
+        style={styles.map} 
+        initialRegion={HAMILTON_REGION} 
+        showsUserLocation={true} 
+        provider={PROVIDER_DEFAULT}
+        userInterfaceStyle="dark"
+        onMapReady={() => setIsMapReady(true)} 
+        onPress={() => setSelectedBlock(null)}
       >
-        {gridPolygons.map((poly: any) => (
-          <Polygon key={poly.id} coordinates={poly.coordinates} fillColor={poly.color} strokeColor="rgba(255,255,255,0.3)" strokeWidth={1} tappable={true}
-            onPress={(e) => { e.stopPropagation(); Alert.alert("Area Score", `Score: ${poly.score}\n\n${poly.reasons.join('\n\n')}`); }}
+        {isDataLoaded && gridPolygons.map((poly: any) => (
+          <Polygon 
+            key={poly.id} 
+            coordinates={poly.coordinates} 
+            fillColor={poly.color} 
+            strokeColor="rgba(255,255,255,0.2)" 
+            strokeWidth={1} 
+            tappable={true}
+            onPress={(e) => { 
+                e.stopPropagation(); 
+                setSelectedBlock(poly); 
+            }}
           />
         ))}
-        {userReports.map((event: any) => (
-          <Marker key={event.id} coordinate={{ latitude: event.lat, longitude: event.lng }} pinColor={event.type === 'safety' ? 'red' : 'gold'}
-            onPress={(e) => { e.stopPropagation(); setSelectedReport(event); }}
+        {isDataLoaded && userReports.map((event: any) => (
+          <Marker 
+            key={event.id} 
+            coordinate={{ latitude: event.lat, longitude: event.lng }} 
+            pinColor={event.type === 'safety' ? 'red' : 'gold'}
+            onPress={(e) => { e.stopPropagation(); Alert.alert("User Report", event.description); }}
           />
         ))}
       </MapView>
 
-      {selectedReport && (
-        <View style={styles.reportCard}>
-          <View style={styles.reportHeader}>
-            <Text style={styles.reportTitle}>{selectedReport.type === 'safety' ? '⚠️ Safety Issue' : '💬 Report'}</Text>
-            <TouchableOpacity onPress={() => setSelectedReport(null)}><Ionicons name="close-circle" size={24} color="#888" /></TouchableOpacity>
-          </View>
-          <Text style={styles.reportDesc}>{selectedReport.description || "No description provided."}</Text>
-          <TouchableOpacity style={styles.resolveBtn} onPress={handleResolve}><Text style={styles.resolveBtnText}>✅ Mark Resolved</Text></TouchableOpacity>
+      {/* 🌀 LOADING SCREEN OVERLAY */}
+      {isLoading && (
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator size="large" color="#fbbf24" />
+          <Text style={styles.loadingText}>Analyzing Hamilton...</Text>
         </View>
       )}
 
-      {!selectedReport && (
+      {/* 🎫 PREMIUM PROPERTY CARD */}
+      {selectedBlock && !isLoading && (
+        <Animated.View style={[styles.card, { transform: [{ translateY: slideAnim }] }]}>
+          <View style={styles.cardHandle} />
+          <View style={styles.cardHeader}>
+            <View style={{flex: 1}}>
+                <Text style={styles.cardZoneName}>{selectedBlock.rent?.name}</Text>
+                
+                <View style={styles.rentRow}>
+                  <Text style={styles.rentLabel}>1BR</Text>
+                  <Text style={styles.rentValue}>${selectedBlock.rent?.p1}</Text>
+                  <View style={styles.rentDivider} />
+                  <Text style={styles.rentLabel}>2BR</Text>
+                  <Text style={styles.rentValue}>${selectedBlock.rent?.p2}</Text>
+                </View>
+                <Text style={styles.cardSubtitle}>Zonal Average (CMHC 2025)</Text>
+            </View>
+            
+            <View style={[styles.scoreBadge, { backgroundColor: selectedBlock.score >= 0 ? '#22c55e' : '#ef4444' }]}>
+                <Text style={styles.scoreTitle}>SCORE</Text>
+                <Text style={styles.scoreText}>{selectedBlock.score}</Text>
+            </View>
+          </View>
+
+          <TouchableOpacity style={styles.closeButton} onPress={() => setSelectedBlock(null)}>
+             <Ionicons name="close-circle" size={28} color="#555" />
+          </TouchableOpacity>
+          
+          <View style={styles.divider} />
+          
+          <Text style={styles.reasonsTitle}>LIVABILITY FACTORS</Text>
+          <View style={styles.reasonsContainer}>
+            {selectedBlock.reasons.map((r: string, i: number) => (
+              <Text key={i} style={styles.reasonText}>{r}</Text>
+            ))}
+            {selectedBlock.reasons.length === 0 && <Text style={styles.reasonText}>No significant data recorded.</Text>}
+          </View>
+        </Animated.View>
+      )}
+
+      {/* LEGEND */}
+      {!selectedBlock && !isLoading && (
         <View style={styles.legendContainer}>
           <Text style={styles.legendTitle}>Livability Index</Text>
-          <View style={styles.legendItem}><View style={[styles.legendBox, { backgroundColor: 'rgba(0, 255, 0, 0.4)' }]} /><Text style={styles.legendText}>High / Amenities</Text></View>
-          <View style={styles.legendItem}><View style={[styles.legendBox, { backgroundColor: 'rgba(255, 0, 0, 0.5)' }]} /><Text style={styles.legendText}>Low / Industrial</Text></View>
+          <View style={styles.legendItem}><View style={[styles.legendBox, { backgroundColor: 'rgba(0, 255, 0, 0.4)' }]} /><Text style={styles.legendText}>High</Text></View>
+          <View style={styles.legendItem}><View style={[styles.legendBox, { backgroundColor: 'rgba(255, 0, 0, 0.5)' }]} /><Text style={styles.legendText}>Low</Text></View>
         </View>
       )}
 
@@ -210,23 +295,50 @@ export default function MapScreen() {
         isLoading={isSubmitting} 
       />
       
-      <DisclaimerModal />
+      {/* ⚡️ DISCLAIMER: ONLY RENDERS AFTER LOADING IS DONE */}
+      {showDisclaimer && <DisclaimerModal />}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
+  container: { flex: 1, backgroundColor: '#000' },
   map: { width: '100%', height: '100%' },
-  reportCard: { position: 'absolute', bottom: 30, left: 20, right: 20, backgroundColor: '#1c1c1e', borderRadius: 16, padding: 20, elevation: 10 },
-  reportHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
-  reportTitle: { color: 'white', fontSize: 18, fontWeight: 'bold' },
-  reportDesc: { color: '#ccc', fontSize: 14, marginBottom: 10 },
-  resolveBtn: { backgroundColor: '#30d158', padding: 12, borderRadius: 10, alignItems: 'center' },
-  resolveBtnText: { color: 'white', fontWeight: 'bold' },
-  legendContainer: { position: 'absolute', bottom: 90, left: 20, backgroundColor: 'rgba(255, 255, 255, 0.95)', padding: 12, borderRadius: 12 },
-  legendTitle: { fontSize: 11, fontWeight: 'bold', marginBottom: 5, color: '#222' },
+  
+  loadingOverlay: {
+    position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+    backgroundColor: '#000', justifyContent: 'center', alignItems: 'center', zIndex: 999,
+  },
+  loadingText: {
+    color: '#fbbf24', marginTop: 15, fontSize: 16, fontWeight: 'bold', letterSpacing: 1,
+  },
+
+  card: { position: 'absolute', bottom: 30, left: 15, right: 15, backgroundColor: '#1c1c1e', borderRadius: 24, padding: 24, paddingTop: 12, shadowColor: '#000', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.5, shadowRadius: 15, elevation: 20, zIndex: 50 },
+  cardHandle: { width: 40, height: 4, backgroundColor: '#333', borderRadius: 2, alignSelf: 'center', marginBottom: 15 },
+  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', paddingRight: 30 },
+  cardZoneName: { color: 'white', fontSize: 20, fontWeight: '800', marginBottom: 8, letterSpacing: 0.5 },
+  
+  rentRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 4 },
+  rentLabel: { color: '#888', fontSize: 13, fontWeight: '600', marginRight: 4 },
+  rentValue: { color: '#fbbf24', fontSize: 16, fontWeight: '700' },
+  rentDivider: { width: 1, height: 14, backgroundColor: '#444', marginHorizontal: 12 },
+  
+  cardSubtitle: { color: '#666', fontSize: 11, fontStyle: 'italic', marginTop: 4 },
+  
+  scoreBadge: { width: 56, height: 56, borderRadius: 16, justifyContent: 'center', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 3 },
+  scoreTitle: { color: 'rgba(255,255,255,0.8)', fontSize: 8, fontWeight: 'bold' },
+  scoreText: { color: 'white', fontSize: 22, fontWeight: '900' },
+  
+  closeButton: { position: 'absolute', top: 15, right: 15, zIndex: 10 },
+  
+  divider: { height: 1, backgroundColor: '#333', marginVertical: 18 },
+  reasonsTitle: { color: '#666', fontSize: 11, fontWeight: '800', marginBottom: 10, letterSpacing: 1 },
+  reasonsContainer: { flexDirection: 'row', flexWrap: 'wrap' },
+  reasonText: { color: '#e5e5e5', fontSize: 13, marginRight: 8, marginBottom: 8, backgroundColor: '#2c2c2e', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8, overflow:'hidden', fontWeight: '500' },
+
+  legendContainer: { position: 'absolute', bottom: 100, left: 20, backgroundColor: 'rgba(28,28,30,0.9)', padding: 10, borderRadius: 10 },
+  legendTitle: { color: '#888', fontSize: 10, fontWeight: 'bold', marginBottom: 4 },
   legendItem: { flexDirection: 'row', alignItems: 'center', marginBottom: 5 },
-  legendBox: { width: 14, height: 14, marginRight: 8, borderRadius: 3 },
-  legendText: { fontSize: 11, color: '#444' }
+  legendBox: { width: 12, height: 12, borderRadius: 3, marginRight: 8 },
+  legendText: { color: '#ccc', fontSize: 12 }
 });
