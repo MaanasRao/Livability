@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, View, Text, Alert, TouchableOpacity, Animated, ActivityIndicator, Keyboard, Modal, StatusBar } from 'react-native';
+import { StyleSheet, View, Text, Alert, TouchableOpacity, Animated, ActivityIndicator, Keyboard, StatusBar, BackHandler, Platform } from 'react-native';
 import MapView, { Marker, Polygon, PROVIDER_DEFAULT } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
@@ -30,7 +30,7 @@ export default function MapScreen() {
   
   // -- STATE --
   const [modalVisible, setModalVisible] = useState(false);
-  const [searchModalVisible, setSearchModalVisible] = useState(false);
+  const [searchMode, setSearchMode] = useState(false); // 🆕 Controls Screen Swap
   const [gridPolygons, setGridPolygons] = useState<any[]>([]);
   const [userReports, setUserReports] = useState<any[]>([]);
   const [selectedBlock, setSelectedBlock] = useState<any>(null);
@@ -46,6 +46,19 @@ export default function MapScreen() {
   const GRID_SIZE = 0.009; 
 
   const isLoading = !isMapReady || !isDataLoaded;
+
+  // Handle Android Back Button
+  useEffect(() => {
+    const backAction = () => {
+      if (searchMode) {
+        setSearchMode(false);
+        return true;
+      }
+      return false;
+    };
+    const backHandler = BackHandler.addEventListener("hardwareBackPress", backAction);
+    return () => backHandler.remove();
+  }, [searchMode]);
 
   useEffect(() => {
     if (!isLoading) {
@@ -77,9 +90,7 @@ export default function MapScreen() {
 
       if (!grid[key]) grid[key] = { score: 0, details: [] };
 
-      let label = "";
-      let weight = 0;
-
+      let label = ""; let weight = 0;
       if (['park', 'school', 'amenity'].includes(event.type)) { label = '✅ Park/School (+2)'; weight = 2; } 
       else if (event.type === 'grocery') { label = '🛒 Grocery Nearby (+2)'; weight = 2; }
       else if (event.type === 'healthcare') { label = '🏥 Healthcare (+3)'; weight = 3; } 
@@ -169,18 +180,19 @@ export default function MapScreen() {
     }
   }, [selectedBlock, slideAnim]);
 
-  // --- SEARCH LOGIC (Cleaned) ---
+  // --- SEARCH LOGIC ---
   const handleSearchSelect = (data: any, details: any = null) => {
     if (!details) { Alert.alert("Error", "No details found"); return; }
     
     const { lat, lng } = details.geometry.location;
     
     setDisplayAddress(data.description || "Selected Location");
-    setSearchModalVisible(false);
+    setSearchMode(false); // ⚡️ Swap back to Map
     
+    // Zoom Map (after screen swap)
     setTimeout(() => {
         mapRef.current?.animateToRegion({ latitude: lat, longitude: lng, latitudeDelta: 0.01, longitudeDelta: 0.01 }, 1000);
-    }, 500);
+    }, 100); // 100ms delay to let MapView remount/appear
 
     const gridX = Math.floor(lng / GRID_SIZE);
     const gridY = Math.floor(lat / GRID_SIZE);
@@ -199,54 +211,113 @@ export default function MapScreen() {
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
       
-      {/* 🟢 FAKE SEARCH BAR (Opens Modal) */}
-      <TouchableOpacity 
-        style={styles.fakeSearchWrapper} 
-        activeOpacity={0.8} 
-        onPress={() => setSearchModalVisible(true)}
-      >
-        <Ionicons name="search" size={20} color="#bbb" style={{ marginRight: 10 }} />
-        <Text style={[styles.fakeSearchText, { color: displayAddress ? 'white' : '#bbb' }]} numberOfLines={1}>
-          {displayAddress || "Search Hamilton address..."}
-        </Text>
-      </TouchableOpacity>
+      {/* 📺 SCREEN 1: MAP VIEW (Only visible when NOT searching) */}
+      <View style={[styles.mapContainer, { height: searchMode ? 0 : '100%', opacity: searchMode ? 0 : 1 }]}>
+        
+        {/* FAKE SEARCH BAR */}
+        <TouchableOpacity 
+            style={styles.fakeSearchWrapper} 
+            activeOpacity={0.8} 
+            onPress={() => setSearchMode(true)}
+        >
+            <Ionicons name="search" size={20} color="#bbb" style={{ marginRight: 10 }} />
+            <Text style={[styles.fakeSearchText, { color: displayAddress ? 'white' : '#bbb' }]} numberOfLines={1}>
+            {displayAddress || "Search Hamilton address..."}
+            </Text>
+        </TouchableOpacity>
 
-      <MapView
-        ref={mapRef} 
-        style={styles.map} 
-        initialRegion={HAMILTON_REGION} 
-        showsUserLocation={true} 
-        provider={PROVIDER_DEFAULT}
-        userInterfaceStyle="dark"
-        onMapReady={() => setIsMapReady(true)} 
-        onPress={() => { setSelectedBlock(null); }}
-      >
-        {isDataLoaded && gridPolygons.map((poly: any, index: number) => (
-          <Polygon 
-            key={index} 
-            coordinates={poly.coordinates} 
-            fillColor={poly.color} 
-            strokeColor="rgba(255,255,255,0.2)" 
-            strokeWidth={1} 
-            tappable={true}
-            onPress={(e) => { e.stopPropagation(); setSelectedBlock(poly); }}
-          />
-        ))}
-        {isDataLoaded && userReports.map((event: any) => (
-          <Marker 
-            key={event.id} 
-            coordinate={{ latitude: event.lat, longitude: event.lng }} 
-            pinColor={event.type === 'safety' ? 'red' : 'gold'}
-            onPress={(e) => { e.stopPropagation(); Alert.alert("User Report", event.description); }}
-          />
-        ))}
-      </MapView>
+        <MapView
+            ref={mapRef} 
+            style={styles.map} 
+            initialRegion={HAMILTON_REGION} 
+            showsUserLocation={true} 
+            provider={PROVIDER_DEFAULT}
+            userInterfaceStyle="dark"
+            onMapReady={() => setIsMapReady(true)} 
+            onPress={() => { setSelectedBlock(null); }}
+        >
+            {isDataLoaded && gridPolygons.map((poly: any, index: number) => (
+            <Polygon 
+                key={index} 
+                coordinates={poly.coordinates} 
+                fillColor={poly.color} 
+                strokeColor="rgba(255,255,255,0.2)" 
+                strokeWidth={1} 
+                tappable={true}
+                onPress={(e) => { e.stopPropagation(); setSelectedBlock(poly); }}
+            />
+            ))}
+            {isDataLoaded && userReports.map((event: any) => (
+            <Marker 
+                key={event.id} 
+                coordinate={{ latitude: event.lat, longitude: event.lng }} 
+                pinColor={event.type === 'safety' ? 'red' : 'gold'}
+                onPress={(e) => { e.stopPropagation(); Alert.alert("User Report", event.description); }}
+            />
+            ))}
+        </MapView>
 
-      {/* 🔴 SEARCH MODAL (Fixed Double Tap + No Red Error) */}
-      <Modal visible={searchModalVisible} animationType="slide" presentationStyle="fullScreen">
-        <SafeAreaView style={styles.modalContainer}>
+        {/* LOADING */}
+        {isLoading && (
+            <View style={styles.loadingOverlay}>
+            <ActivityIndicator size="large" color="#fbbf24" />
+            <Text style={styles.loadingText}>Analyzing Hamilton...</Text>
+            </View>
+        )}
+
+        {/* CARD */}
+        {selectedBlock && !isLoading && !searchMode && (
+            <Animated.View style={[styles.card, { transform: [{ translateY: slideAnim }] }]}>
+            <View style={styles.cardHandle} />
+            <View style={styles.cardHeader}>
+                <View style={{flex: 1}}>
+                    <Text style={styles.cardZoneName}>{selectedBlock.rent?.name || "Unknown Zone"}</Text>
+                    <View style={styles.rentRow}>
+                    <Text style={styles.rentLabel}>1BR</Text>
+                    <Text style={styles.rentValue}>${selectedBlock.rent?.p1}</Text>
+                    <View style={styles.rentDivider} />
+                    <Text style={styles.rentLabel}>2BR</Text>
+                    <Text style={styles.rentValue}>${selectedBlock.rent?.p2}</Text>
+                    </View>
+                    <Text style={styles.cardSubtitle}>Zonal Average (CMHC 2025)</Text>
+                </View>
+                <View style={[styles.scoreBadge, { backgroundColor: selectedBlock.score >= 0 ? '#22c55e' : '#ef4444' }]}>
+                    <Text style={styles.scoreTitle}>SCORE</Text>
+                    <Text style={styles.scoreText}>{selectedBlock.score}</Text>
+                </View>
+            </View>
+            <TouchableOpacity style={styles.closeButton} onPress={() => setSelectedBlock(null)}>
+                <Ionicons name="close-circle" size={28} color="#555" />
+            </TouchableOpacity>
+            <View style={styles.divider} />
+            <Text style={styles.reasonsTitle}>LIVABILITY FACTORS</Text>
+            <View style={styles.reasonsContainer}>
+                {selectedBlock.reasons && selectedBlock.reasons.map((r: string, i: number) => (
+                <Text key={i} style={styles.reasonText}>{r}</Text>
+                ))}
+                {(!selectedBlock.reasons || selectedBlock.reasons.length === 0) && <Text style={styles.reasonText}>No significant data recorded.</Text>}
+            </View>
+            </Animated.View>
+        )}
+
+        {/* LEGEND */}
+        {!selectedBlock && !isLoading && !searchMode && (
+            <View style={styles.legendContainer}>
+            <Text style={styles.legendTitle}>Livability Index</Text>
+            <View style={styles.legendItem}><View style={[styles.legendBox, { backgroundColor: 'rgba(0, 255, 0, 0.4)' }]} /><Text style={styles.legendText}>High</Text></View>
+            <View style={styles.legendItem}><View style={[styles.legendBox, { backgroundColor: 'rgba(255, 0, 0, 0.5)' }]} /><Text style={styles.legendText}>Low</Text></View>
+            </View>
+        )}
+
+        {/* FAB */}
+        {!isLoading && !searchMode && <FAB onPress={() => setModalVisible(true)} />}
+      </View>
+
+      {/* 📺 SCREEN 2: SEARCH SCREEN (Visible only when searching) */}
+      {searchMode && (
+        <SafeAreaView style={styles.searchScreenContainer}>
           <View style={styles.modalHeader}>
-            <TouchableOpacity onPress={() => setSearchModalVisible(false)} style={styles.backButton}>
+            <TouchableOpacity onPress={() => setSearchMode(false)} style={styles.backButton}>
               <Ionicons name="arrow-back" size={24} color="white" />
             </TouchableOpacity>
             <Text style={styles.modalTitle}>Search Location</Text>
@@ -254,7 +325,6 @@ export default function MapScreen() {
           </View>
           
           <View style={styles.searchBody}>
-            {/* ⚡️ REMOVED SCROLLVIEW WRAPPER TO FIX ERROR */}
             <GooglePlacesAutocomplete
                 placeholder='Enter address...'
                 fetchDetails={true}
@@ -263,8 +333,11 @@ export default function MapScreen() {
                 minLength={2}
                 onPress={handleSearchSelect}
                 
-                // ⚡️ THE FIX: This prop allows touches even when keyboard is up
-                keyboardShouldPersistTaps='handled'
+                // 💣 PROP BOMBARDMENT: Force keyboard to behave
+                keyboardShouldPersistTaps='always'
+                listProps={{ keyboardShouldPersistTaps: 'always' }}
+                flatListProps={{ keyboardShouldPersistTaps: 'always' }}
+                scrollViewProps={{ keyboardShouldPersistTaps: 'always' }}
                 
                 query={{ 
                     key: GOOGLE_API_KEY, language: 'en', components: 'country:ca', 
@@ -283,62 +356,7 @@ export default function MapScreen() {
             />
           </View>
         </SafeAreaView>
-      </Modal>
-
-      {/* 🌀 LOADING */}
-      {isLoading && (
-        <View style={styles.loadingOverlay}>
-          <ActivityIndicator size="large" color="#fbbf24" />
-          <Text style={styles.loadingText}>Analyzing Hamilton...</Text>
-        </View>
       )}
-
-      {/* 🎫 CARD */}
-      {selectedBlock && !isLoading && (
-        <Animated.View style={[styles.card, { transform: [{ translateY: slideAnim }] }]}>
-          <View style={styles.cardHandle} />
-          <View style={styles.cardHeader}>
-            <View style={{flex: 1}}>
-                <Text style={styles.cardZoneName}>{selectedBlock.rent?.name || "Unknown Zone"}</Text>
-                <View style={styles.rentRow}>
-                  <Text style={styles.rentLabel}>1BR</Text>
-                  <Text style={styles.rentValue}>${selectedBlock.rent?.p1}</Text>
-                  <View style={styles.rentDivider} />
-                  <Text style={styles.rentLabel}>2BR</Text>
-                  <Text style={styles.rentValue}>${selectedBlock.rent?.p2}</Text>
-                </View>
-                <Text style={styles.cardSubtitle}>Zonal Average (CMHC 2025)</Text>
-            </View>
-            <View style={[styles.scoreBadge, { backgroundColor: selectedBlock.score >= 0 ? '#22c55e' : '#ef4444' }]}>
-                <Text style={styles.scoreTitle}>SCORE</Text>
-                <Text style={styles.scoreText}>{selectedBlock.score}</Text>
-            </View>
-          </View>
-          <TouchableOpacity style={styles.closeButton} onPress={() => setSelectedBlock(null)}>
-             <Ionicons name="close-circle" size={28} color="#555" />
-          </TouchableOpacity>
-          <View style={styles.divider} />
-          <Text style={styles.reasonsTitle}>LIVABILITY FACTORS</Text>
-          <View style={styles.reasonsContainer}>
-            {selectedBlock.reasons && selectedBlock.reasons.map((r: string, i: number) => (
-              <Text key={i} style={styles.reasonText}>{r}</Text>
-            ))}
-            {(!selectedBlock.reasons || selectedBlock.reasons.length === 0) && <Text style={styles.reasonText}>No significant data recorded.</Text>}
-          </View>
-        </Animated.View>
-      )}
-
-      {/* LEGEND */}
-      {!selectedBlock && !isLoading && (
-        <View style={styles.legendContainer}>
-          <Text style={styles.legendTitle}>Livability Index</Text>
-          <View style={styles.legendItem}><View style={[styles.legendBox, { backgroundColor: 'rgba(0, 255, 0, 0.4)' }]} /><Text style={styles.legendText}>High</Text></View>
-          <View style={styles.legendItem}><View style={[styles.legendBox, { backgroundColor: 'rgba(255, 0, 0, 0.5)' }]} /><Text style={styles.legendText}>Low</Text></View>
-        </View>
-      )}
-
-      {/* ⚡️ FAB VISIBILITY: ONLY WHEN NOT LOADING */}
-      {!isLoading && <FAB onPress={() => setModalVisible(true)} />}
       
       <ReportModal visible={modalVisible} onClose={() => setModalVisible(false)} onSubmit={handleSubmit} isLoading={isSubmitting} />
       {showDisclaimer && <DisclaimerModal />}
@@ -348,6 +366,7 @@ export default function MapScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#000' },
+  mapContainer: { width: '100%', overflow: 'hidden' }, // Ensure Map hides cleanly
   map: { width: '100%', height: '100%' },
   
   fakeSearchWrapper: { 
@@ -359,8 +378,8 @@ const styles = StyleSheet.create({
   },
   fakeSearchText: { fontSize: 16, fontWeight: '500' },
 
-  // MODAL
-  modalContainer: { flex: 1, backgroundColor: '#000' }, 
+  // SEARCH SCREEN STYLES
+  searchScreenContainer: { flex: 1, backgroundColor: '#000' },
   modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: '#333' },
   backButton: { padding: 5 },
   modalTitle: { fontSize: 18, fontWeight: 'bold', color: 'white' },
