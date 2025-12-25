@@ -15,7 +15,6 @@ const API_URL = "http://192.168.2.34:8000";
 const GOOGLE_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_API_KEY;
 const STORAGE_KEY = '@voted_reports';
 
-
 const RENT_ZONES = [
   { name: "Downtown Core", lat: 43.256, lng: -79.868, p1: 1398, p2: 1643 },
   { name: "Central East", lat: 43.252, lng: -79.835, p1: 1102, p2: 1291 },
@@ -27,6 +26,18 @@ const RENT_ZONES = [
   { name: "Burlington", lat: 43.325, lng: -79.799, p1: 1749, p2: 2057 },
   { name: "Ancaster/Dundas", lat: 43.235, lng: -79.945, p1: 1493, p2: 1811 }
 ];
+
+// Pin color helper function
+const getPinColor = (type) => {
+  switch(type) {
+    case 'safety': return 'red';
+    case 'noise': return '#fbbf24'; // gold
+    case 'maintenance': return '#22c55e'; // green
+    case 'trash': return '#a855f7'; // purple
+    case 'traffic': return '#3b82f6'; // blue
+    default: return 'white'; // white for all other types
+  }
+}
 
 export default function MapScreen() {
   const mapRef = useRef<MapView>(null);
@@ -52,7 +63,7 @@ export default function MapScreen() {
 
   const isLoading = !isMapReady || !isDataLoaded;
 
-    useEffect(() => {
+  useEffect(() => {
     (async () => {
       try {
         const stored = await AsyncStorage.getItem(STORAGE_KEY);
@@ -68,6 +79,22 @@ export default function MapScreen() {
     await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(ids));
   };
 
+  const handleResolve = async (id: number) => {
+    try {
+      const res = await fetch(`${API_URL}/reports/${id}/resolve`, { method: 'POST' });
+      
+      if (!res.ok) throw new Error('Failed');
+
+      // 1. Remove from local state immediately
+      setUserReports(prev => prev.filter(r => r.id !== id));
+      setSelectedReport(null);
+
+      // 2.Success Message
+      Alert.alert("Success 🟢", "The report has been resolved and removed from the map.");
+    } catch {
+      Alert.alert('Error', 'Could not mark report as resolved');
+    }
+  };
 
   // Handle Android Back Button
   useEffect(() => {
@@ -202,38 +229,32 @@ export default function MapScreen() {
     }
   }, [selectedBlock, selectedReport, slideAnim]);
 
-  // --- 🚀 VOTING LOGIC ---
-const handleVote = async (id: number, type: 'up' | 'down') => {
-  if (votedReportIds.includes(id)) return;
+  // --- VOTING LOGIC ---
+  const handleVote = async (id: number, type: 'up' | 'down') => {
+    if (votedReportIds.includes(id)) return;
 
-  try {
-    const res = await fetch(
-      `${API_URL}/reports/${id}/vote?vote_type=${type}`,
-      { method: 'POST' }
-    );
-    const data = await res.json();
+    try {
+      const res = await fetch(
+        `${API_URL}/reports/${id}/vote?vote_type=${type}`,
+        { method: 'POST' }
+      );
+      const data = await res.json();
 
-    // ✅ Persist vote safely (no race conditions)
-    setVotedReportIds(prev => {
-      const updated = [...prev, id];
-      AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-      return updated;
-    });
-
-    // ✅ Update report list
-    setUserReports(prev =>
-      prev.map(r => (r.id === id ? { ...r, votes: data.votes } : r))
-    );
-
-    // ✅ Update open card instantly
-    setSelectedReport(prev =>
-      prev ? { ...prev, votes: data.votes } : prev
-    );
-  } catch {
-    Alert.alert('Error', 'Vote failed');
-  }
-};
-
+      setVotedReportIds(prev => {
+        const updated = [...prev, id];
+        AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+        return updated;
+      });
+      setUserReports(prev =>
+        prev.map(r => (r.id === id ? { ...r, votes: data.votes } : r))
+      );
+      setSelectedReport(prev =>
+        prev ? { ...prev, votes: data.votes } : prev
+      );
+    } catch {
+      Alert.alert('Error', 'Vote failed');
+    }
+  };
 
   // --- SEARCH LOGIC ---
   const handleSearchSelect = (data: any, details: any = null) => {
@@ -297,7 +318,7 @@ const handleVote = async (id: number, type: 'up' | 'down') => {
             <Marker 
                 key={event.id} 
                 coordinate={{ latitude: event.lat, longitude: event.lng }} 
-                pinColor={event.type === 'safety' ? 'red' : 'gold'}
+                pinColor={getPinColor(event.type)}
                 onPress={(e) => { e.stopPropagation(); setSelectedBlock(null); setSelectedReport(event); }}
             />
             ))}
@@ -310,44 +331,68 @@ const handleVote = async (id: number, type: 'up' | 'down') => {
             </View>
         )}
 
-        {/* 🟡 INFO CARD (Conditional for Block or Report) */}
         {(selectedBlock || selectedReport) && !isLoading && !searchMode && (
-            <Animated.View style={[styles.card, { transform: [{ translateY: slideAnim }] }]}>
+          <Animated.View style={[styles.card, { transform: [{ translateY: slideAnim }] }]}>
             <View style={styles.cardHandle} />
-            
+
             {selectedBlock ? (
               // BLOCK UI
               <>
                 <View style={styles.cardHeader}>
-                    <View style={{flex: 1}}>
-                        <Text style={styles.cardZoneName}>{selectedBlock.rent?.name || "Hamilton Area"}</Text>
-                        <View style={styles.rentRow}>
-                        <Text style={styles.rentLabel}>1BR</Text><Text style={styles.rentValue}>${selectedBlock.rent?.p1}</Text>
-                        <View style={styles.rentDivider} /><Text style={styles.rentLabel}>2BR</Text><Text style={styles.rentValue}>${selectedBlock.rent?.p2}</Text>
-                        </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.cardZoneName}>{selectedBlock.rent?.name || "Hamilton Area"}</Text>
+                    <View style={styles.rentRow}>
+                      <Text style={styles.rentLabel}>1BR</Text>
+                      <Text style={styles.rentValue}>${selectedBlock.rent?.p1}</Text>
+                      <View style={styles.rentDivider} />
+                      <Text style={styles.rentLabel}>2BR</Text>
+                      <Text style={styles.rentValue}>${selectedBlock.rent?.p2}</Text>
                     </View>
-                    <View style={[styles.scoreBadge, { backgroundColor: selectedBlock.score >= 0 ? '#22c55e' : '#ef4444' }]}>
-                        <Text style={styles.scoreText}>{selectedBlock.score}</Text>
-                    </View>
+                  </View>
+                  <View
+                    style={[
+                      styles.scoreBadge,
+                      { backgroundColor: selectedBlock.score >= 0 ? '#22c55e' : '#ef4444' },
+                    ]}
+                  >
+                    <Text style={styles.scoreText}>{selectedBlock.score}</Text>
+                  </View>
                 </View>
                 <View style={styles.divider} />
                 <View style={styles.reasonsContainer}>
-                    {selectedBlock.reasons?.map((r: string, i: number) => <Text key={i} style={styles.reasonText}>{r}</Text>)}
+                  {selectedBlock.reasons?.map((r: string, i: number) => (
+                    <Text key={i} style={styles.reasonText}>
+                      {r}
+                    </Text>
+                  ))}
                 </View>
               </>
             ) : (
-              // REPORT UI
+              // --- USER REPORT UI ---
               <>
                 <View style={styles.reportHeaderRow}>
-                    <Ionicons name={selectedReport.type === 'safety' ? 'warning' : 'volume-high'} size={24} color={selectedReport.type === 'safety' ? '#ef4444' : '#fbbf24'} />
-                    <Text style={styles.reportTitle}>{selectedReport.type === 'safety' ? 'Safety Alert' : 'Noise'}</Text>
-                </View>
-                <Text style={styles.reportDescription}>"{selectedReport.description}"</Text>
-                <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10 }}>
-                  <Text style={styles.voteText}>
-                    Community Trust Score: {selectedReport.votes || 0}
+                  <Ionicons
+                    name={
+                      selectedReport.type === 'safety' ? 'warning' : 
+                      selectedReport.type === 'noise' ? 'volume-high' : 
+                      selectedReport.type === 'maintenance' ? 'hammer' : 
+                      selectedReport.type === 'trash' ? 'trash' : 'information-circle'
+                    }
+                    size={24}
+                    color={getPinColor(selectedReport.type)}
+                  />
+                  <Text style={styles.reportTitle}>
+                    {selectedReport.type === 'safety' ? 'Safety Alert' : 
+                    selectedReport.type === 'noise' ? 'Noise Report' : 
+                    selectedReport.type === 'maintenance' ? 'Maintenance' : 
+                    selectedReport.type === 'trash' ? 'Trash/Litter' : 'Community Report'}
                   </Text>
+                </View>
 
+                <Text style={styles.reportDescription}>"{selectedReport.description}"</Text>
+
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10 }}>
+                  <Text style={styles.voteText}>Community Trust Score: {selectedReport.votes || 0}</Text>
                   {votedReportIds.includes(selectedReport.id) && (
                     <View style={styles.votedBadge}>
                       <Ionicons name="checkmark-circle" size={14} color="#22c55e" />
@@ -357,29 +402,55 @@ const handleVote = async (id: number, type: 'up' | 'down') => {
                 </View>
 
                 <View style={styles.divider} />
-                <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                    <TouchableOpacity 
-                      disabled={votedReportIds.includes(selectedReport.id)}
-                      style={[styles.voteButton, {backgroundColor: '#fee2e2', opacity: votedReportIds.includes(selectedReport.id) ? 0.5 : 1}]} 
-                      onPress={() => handleVote(selectedReport.id, 'down')}
-                    >
-                        <Ionicons name="thumbs-down" size={18} color="#ef4444" /><Text style={{color:'#ef4444', fontWeight:'bold', marginLeft:5}}>Fake</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity 
-                      disabled={votedReportIds.includes(selectedReport.id)}
-                      style={[styles.voteButton, {backgroundColor: '#dcfce7', opacity: votedReportIds.includes(selectedReport.id) ? 0.5 : 1}]} 
-                      onPress={() => handleVote(selectedReport.id, 'up')}
-                    >
-                        <Ionicons name="thumbs-up" size={18} color="#22c55e" /><Text style={{color:'#22c55e', fontWeight:'bold', marginLeft:5}}>Verify</Text>
-                    </TouchableOpacity>
+
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                  {/* FAKE BUTTON */}
+                  <TouchableOpacity
+                    disabled={votedReportIds.includes(selectedReport.id)}
+                    style={[
+                      styles.voteButton,
+                      { backgroundColor: '#fee2e2', flex: 0.25, opacity: votedReportIds.includes(selectedReport.id) ? 0.5 : 1 }
+                    ]}
+                    onPress={() => handleVote(selectedReport.id, 'down')}
+                  >
+                    <Ionicons name="thumbs-down" size={18} color="#ef4444" />
+                  </TouchableOpacity>
+
+                  {/* VERIFY BUTTON */}
+                  <TouchableOpacity
+                    disabled={votedReportIds.includes(selectedReport.id)}
+                    style={[
+                      styles.voteButton,
+                      { backgroundColor: '#dcfce7', flex: 0.25, opacity: votedReportIds.includes(selectedReport.id) ? 0.5 : 1 }
+                    ]}
+                    onPress={() => handleVote(selectedReport.id, 'up')}
+                  >
+                    <Ionicons name="thumbs-up" size={18} color="#22c55e" />
+                  </TouchableOpacity>
+
+                  {/* RESOLVE BUTTON */}
+                  <TouchableOpacity
+                    style={[styles.voteButton, { backgroundColor: '#3b82f6', flex: 0.42, justifyContent: 'center' }]}
+                    onPress={() => handleResolve(selectedReport.id)}
+                  >
+                    <Ionicons name="checkmark-done" size={18} color="white" />
+                    <Text style={{ color: 'white', fontWeight: 'bold', marginLeft: 5, fontSize: 12 }}>Resolve</Text>
+                  </TouchableOpacity>
                 </View>
               </>
             )}
-            
-            <TouchableOpacity style={styles.closeButton} onPress={() => {setSelectedBlock(null); setSelectedReport(null);}}>
-                <Ionicons name="close-circle" size={28} color="#555" />
+
+            {/* CLOSE BUTTON */}
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => {
+                setSelectedBlock(null);
+                setSelectedReport(null);
+              }}
+            >
+              <Ionicons name="close-circle" size={28} color="#555" />
             </TouchableOpacity>
-            </Animated.View>
+          </Animated.View>
         )}
 
         {!selectedBlock && !selectedReport && !isLoading && !searchMode && (
@@ -466,20 +537,18 @@ const styles = StyleSheet.create({
   legendBox: { width: 12, height: 12, borderRadius: 3, marginRight: 8 },
   legendText: { color: '#ccc', fontSize: 12 },
   votedBadge: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  backgroundColor: '#052e16',
-  borderRadius: 12,
-  paddingHorizontal: 8,
-  paddingVertical: 3,
-  marginLeft: 8,
-},
-
-votedBadgeText: {
-  color: '#22c55e',
-  fontSize: 11,
-  fontWeight: 'bold',
-  marginLeft: 4,
-},
-
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#052e16',
+    borderRadius: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    marginLeft: 8,
+  },
+  votedBadgeText: {
+    color: '#22c55e',
+    fontSize: 11,
+    fontWeight: 'bold',
+    marginLeft: 4,
+  },
 });

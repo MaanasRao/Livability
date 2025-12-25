@@ -90,3 +90,13 @@ def delete_report(id: int, db: Session = Depends(get_db)):
     db.delete(report)
     db.commit()
     return {"message": "Report resolved/deleted"}
+
+@app.post("/reports/{report_id}/resolve")
+def resolve_report(report_id: int, db: Session = Depends(get_db)):
+    report = db.query(UserReport).filter(UserReport.id == report_id).first()
+    if not report:
+        raise HTTPException(status_code=404, detail="Report not found")
+    
+    db.delete(report)
+    db.commit()
+    return {"message": "Report resolved and removed"}
