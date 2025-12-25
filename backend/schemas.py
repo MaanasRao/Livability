@@ -1,8 +1,6 @@
 from pydantic import BaseModel
-from typing import Optional
 from datetime import datetime
 
-# --- Events ---
 class EventBase(BaseModel):
     type: str
     description: str
@@ -16,17 +14,21 @@ class EventCreate(EventBase):
 class EventResponse(EventBase):
     id: int
     class Config:
-        orm_mode = True
+        from_attributes = True
 
-# --- User Reports ---
-class UserReportCreate(BaseModel):
+class UserReportBase(BaseModel):
     type: str
     lat: float
     lng: float
-    description: Optional[str] = None
+    description: str | None
 
-class UserReportResponse(UserReportCreate):
+class UserReportCreate(UserReportBase):
+    pass
+
+class UserReportResponse(UserReportBase):
     id: int
     created_at: datetime
+    votes: int
+
     class Config:
-        orm_mode = True
+        from_attributes = True

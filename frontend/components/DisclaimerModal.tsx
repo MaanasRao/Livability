@@ -37,6 +37,8 @@ export default function DisclaimerModal() {
             2. <Text style={styles.bold}>Livability Scores:</Text> Scores are generated algorithmically based on proximity to amenities, safety reports, and noise levels.
             {"\n\n"}
             3. <Text style={styles.bold}>Community Reports:</Text> Safety and noise data is crowdsourced and may not reflect official police records.
+            {"\n\n"}
+            4. <Text style={styles.bold}>Community Verification:</Text> Use the <Text style={styles.bold}>Verify</Text> or <Text style={styles.bold}>Fake</Text> buttons to rate reports. Reports with low community trust scores are automatically removed.
           </Text>
 
           <View style={styles.row}>

@@ -30,10 +30,9 @@ def get_events(db: Session = Depends(get_db)):
 
 @app.post("/events", response_model=EventResponse)
 def create_event(event: EventCreate, db: Session = Depends(get_db)):
-    geo = f"POINT({event.lng} {event.lat})"
     new_event = Event(
         type=event.type, description=event.description,
-        lat=event.lat, lng=event.lng, weight=event.weight, location=geo
+        lat=event.lat, lng=event.lng, weight=event.weight
     )
     db.add(new_event)
     db.commit()
@@ -49,12 +48,39 @@ def get_reports(db: Session = Depends(get_db)):
 @app.post("/user_reports", response_model=UserReportResponse)
 def create_report(report: UserReportCreate, db: Session = Depends(get_db)):
     new_report = UserReport(
-        type=report.type, lat=report.lat, lng=report.lng, description=report.description
+        type=report.type, lat=report.lat, lng=report.lng, description=report.description, votes=0
     )
     db.add(new_report)
     db.commit()
     db.refresh(new_report)
     return new_report
+
+# --- 🚀 NEW: VOTING ENDPOINT ---
+
+@app.post("/reports/{report_id}/vote")
+def vote_report(report_id: int, vote_type: str, db: Session = Depends(get_db)):
+    # 1. Find the report
+    report = db.query(UserReport).filter(UserReport.id == report_id).first()
+    if not report:
+        raise HTTPException(status_code=404, detail="Report not found")
+
+    # 2. Apply the vote
+    if vote_type == "up":
+        report.votes += 1
+    elif vote_type == "down":
+        report.votes -= 1
+    else:
+        raise HTTPException(status_code=400, detail="Use 'up' or 'down'")
+
+    # 3. Community Deletion: Remove if score hits -3
+    if report.votes <= -3:
+        db.delete(report)
+        db.commit()
+        return {"message": "Report removed", "deleted": True, "votes": report.votes}
+
+    db.commit()
+    db.refresh(report)
+    return {"message": "Vote recorded", "deleted": False, "votes": report.votes}
 
 @app.delete("/user_reports")
 def delete_report(id: int, db: Session = Depends(get_db)):

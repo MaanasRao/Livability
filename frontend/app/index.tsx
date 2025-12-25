@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, View, Text, Alert, TouchableOpacity, Animated, ActivityIndicator, Keyboard, StatusBar, BackHandler, Platform } from 'react-native';
+import { StyleSheet, View, Text, Alert, TouchableOpacity, Animated, ActivityIndicator, StatusBar, BackHandler } from 'react-native';
 import MapView, { Marker, Polygon, PROVIDER_DEFAULT } from 'react-native-maps';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Location from 'expo-location';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import { Ionicons } from '@expo/vector-icons'; 
@@ -10,8 +11,10 @@ import ReportModal from '../components/ReportModal';
 import DisclaimerModal from '../components/DisclaimerModal';
 
 // ⚠️ CONFIGURATION
-const API_URL = process.env.EXPO_PUBLIC_API_URL;
-const GOOGLE_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_API_KEY || 'YOUR_GOOGLE_API_KEY';
+const API_URL = "http://192.168.2.34:8000";
+const GOOGLE_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_API_KEY;
+const STORAGE_KEY = '@voted_reports';
+
 
 const RENT_ZONES = [
   { name: "Downtown Core", lat: 43.256, lng: -79.868, p1: 1398, p2: 1643 },
@@ -30,10 +33,12 @@ export default function MapScreen() {
   
   // -- STATE --
   const [modalVisible, setModalVisible] = useState(false);
-  const [searchMode, setSearchMode] = useState(false); // 🆕 Controls Screen Swap
+  const [searchMode, setSearchMode] = useState(false); 
   const [gridPolygons, setGridPolygons] = useState<any[]>([]);
   const [userReports, setUserReports] = useState<any[]>([]);
   const [selectedBlock, setSelectedBlock] = useState<any>(null);
+  const [selectedReport, setSelectedReport] = useState<any>(null); // 🆕 Track selected Pin
+  const [votedReportIds, setVotedReportIds] = useState<number[]>([]); // 🛡️ Anti-Spam tracker
   const [displayAddress, setDisplayAddress] = useState(""); 
   
   const [isMapReady, setIsMapReady] = useState(false); 
@@ -46,6 +51,23 @@ export default function MapScreen() {
   const GRID_SIZE = 0.009; 
 
   const isLoading = !isMapReady || !isDataLoaded;
+
+    useEffect(() => {
+    (async () => {
+      try {
+        const stored = await AsyncStorage.getItem(STORAGE_KEY);
+        if (stored) setVotedReportIds(JSON.parse(stored));
+      } catch {
+        setVotedReportIds([]);
+      }
+    })();
+  }, []);
+
+  const persistVotes = async (ids: number[]) => {
+    setVotedReportIds(ids);
+    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(ids));
+  };
+
 
   // Handle Android Back Button
   useEffect(() => {
@@ -108,10 +130,10 @@ export default function MapScreen() {
       const [gx, gy] = key.split(',').map(Number);
       const { score, details } = grid[key];
       let fillColor = 'transparent'; 
-      if (score >= 5) fillColor = 'rgba(0, 255, 0, 0.4)';         
+      if (score >= 5) fillColor = 'rgba(0, 255, 0, 0.4)';          
       else if (score > 0) fillColor = 'rgba(144, 238, 144, 0.4)'; 
-      else if (score <= -8) fillColor = 'rgba(255, 0, 0, 0.5)';   
-      else if (score < 0) fillColor = 'rgba(255, 165, 0, 0.4)';   
+      else if (score <= -8) fillColor = 'rgba(255, 0, 0, 0.5)';    
+      else if (score < 0) fillColor = 'rgba(255, 165, 0, 0.4)';    
       if (fillColor === 'transparent') return null;
       const minLng = gx * GRID_SIZE;
       const minLat = gy * GRID_SIZE;
@@ -173,32 +195,63 @@ export default function MapScreen() {
   useEffect(() => { fetchData(); }, []);
 
   useEffect(() => {
-    if (selectedBlock) {
+    if (selectedBlock || selectedReport) {
       Animated.spring(slideAnim, { toValue: 0, useNativeDriver: true, friction: 8 }).start();
     } else {
       Animated.timing(slideAnim, { toValue: 500, duration: 250, useNativeDriver: true }).start();
     }
-  }, [selectedBlock, slideAnim]);
+  }, [selectedBlock, selectedReport, slideAnim]);
+
+  // --- 🚀 VOTING LOGIC ---
+const handleVote = async (id: number, type: 'up' | 'down') => {
+  if (votedReportIds.includes(id)) return;
+
+  try {
+    const res = await fetch(
+      `${API_URL}/reports/${id}/vote?vote_type=${type}`,
+      { method: 'POST' }
+    );
+    const data = await res.json();
+
+    // ✅ Persist vote safely (no race conditions)
+    setVotedReportIds(prev => {
+      const updated = [...prev, id];
+      AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+      return updated;
+    });
+
+    // ✅ Update report list
+    setUserReports(prev =>
+      prev.map(r => (r.id === id ? { ...r, votes: data.votes } : r))
+    );
+
+    // ✅ Update open card instantly
+    setSelectedReport(prev =>
+      prev ? { ...prev, votes: data.votes } : prev
+    );
+  } catch {
+    Alert.alert('Error', 'Vote failed');
+  }
+};
+
 
   // --- SEARCH LOGIC ---
   const handleSearchSelect = (data: any, details: any = null) => {
     if (!details) { Alert.alert("Error", "No details found"); return; }
-    
     const { lat, lng } = details.geometry.location;
-    
     setDisplayAddress(data.description || "Selected Location");
-    setSearchMode(false); // ⚡️ Swap back to Map
+    setSearchMode(false); 
     
-    // Zoom Map (after screen swap)
     setTimeout(() => {
         mapRef.current?.animateToRegion({ latitude: lat, longitude: lng, latitudeDelta: 0.01, longitudeDelta: 0.01 }, 1000);
-    }, 100); // 100ms delay to let MapView remount/appear
+    }, 100); 
 
     const gridX = Math.floor(lng / GRID_SIZE);
     const gridY = Math.floor(lat / GRID_SIZE);
     const key = `${gridX},${gridY}`;
     const targetBlock = gridPolygons.find(p => p.id === key);
 
+    setSelectedReport(null);
     if (targetBlock) {
         setSelectedBlock(targetBlock);
     } else {
@@ -211,15 +264,8 @@ export default function MapScreen() {
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
       
-      {/* 📺 SCREEN 1: MAP VIEW (Only visible when NOT searching) */}
       <View style={[styles.mapContainer, { height: searchMode ? 0 : '100%', opacity: searchMode ? 0 : 1 }]}>
-        
-        {/* FAKE SEARCH BAR */}
-        <TouchableOpacity 
-            style={styles.fakeSearchWrapper} 
-            activeOpacity={0.8} 
-            onPress={() => setSearchMode(true)}
-        >
+        <TouchableOpacity style={styles.fakeSearchWrapper} activeOpacity={0.8} onPress={() => setSearchMode(true)}>
             <Ionicons name="search" size={20} color="#bbb" style={{ marginRight: 10 }} />
             <Text style={[styles.fakeSearchText, { color: displayAddress ? 'white' : '#bbb' }]} numberOfLines={1}>
             {displayAddress || "Search Hamilton address..."}
@@ -234,7 +280,7 @@ export default function MapScreen() {
             provider={PROVIDER_DEFAULT}
             userInterfaceStyle="dark"
             onMapReady={() => setIsMapReady(true)} 
-            onPress={() => { setSelectedBlock(null); }}
+            onPress={() => { setSelectedBlock(null); setSelectedReport(null); }}
         >
             {isDataLoaded && gridPolygons.map((poly: any, index: number) => (
             <Polygon 
@@ -244,7 +290,7 @@ export default function MapScreen() {
                 strokeColor="rgba(255,255,255,0.2)" 
                 strokeWidth={1} 
                 tappable={true}
-                onPress={(e) => { e.stopPropagation(); setSelectedBlock(poly); }}
+                onPress={(e) => { e.stopPropagation(); setSelectedReport(null); setSelectedBlock(poly); }}
             />
             ))}
             {isDataLoaded && userReports.map((event: any) => (
@@ -252,12 +298,11 @@ export default function MapScreen() {
                 key={event.id} 
                 coordinate={{ latitude: event.lat, longitude: event.lng }} 
                 pinColor={event.type === 'safety' ? 'red' : 'gold'}
-                onPress={(e) => { e.stopPropagation(); Alert.alert("User Report", event.description); }}
+                onPress={(e) => { e.stopPropagation(); setSelectedBlock(null); setSelectedReport(event); }}
             />
             ))}
         </MapView>
 
-        {/* LOADING */}
         {isLoading && (
             <View style={styles.loadingOverlay}>
             <ActivityIndicator size="large" color="#fbbf24" />
@@ -265,43 +310,79 @@ export default function MapScreen() {
             </View>
         )}
 
-        {/* CARD */}
-        {selectedBlock && !isLoading && !searchMode && (
+        {/* 🟡 INFO CARD (Conditional for Block or Report) */}
+        {(selectedBlock || selectedReport) && !isLoading && !searchMode && (
             <Animated.View style={[styles.card, { transform: [{ translateY: slideAnim }] }]}>
             <View style={styles.cardHandle} />
-            <View style={styles.cardHeader}>
-                <View style={{flex: 1}}>
-                    <Text style={styles.cardZoneName}>{selectedBlock.rent?.name || "Unknown Zone"}</Text>
-                    <View style={styles.rentRow}>
-                    <Text style={styles.rentLabel}>1BR</Text>
-                    <Text style={styles.rentValue}>${selectedBlock.rent?.p1}</Text>
-                    <View style={styles.rentDivider} />
-                    <Text style={styles.rentLabel}>2BR</Text>
-                    <Text style={styles.rentValue}>${selectedBlock.rent?.p2}</Text>
+            
+            {selectedBlock ? (
+              // BLOCK UI
+              <>
+                <View style={styles.cardHeader}>
+                    <View style={{flex: 1}}>
+                        <Text style={styles.cardZoneName}>{selectedBlock.rent?.name || "Hamilton Area"}</Text>
+                        <View style={styles.rentRow}>
+                        <Text style={styles.rentLabel}>1BR</Text><Text style={styles.rentValue}>${selectedBlock.rent?.p1}</Text>
+                        <View style={styles.rentDivider} /><Text style={styles.rentLabel}>2BR</Text><Text style={styles.rentValue}>${selectedBlock.rent?.p2}</Text>
+                        </View>
                     </View>
-                    <Text style={styles.cardSubtitle}>Zonal Average (CMHC 2025)</Text>
+                    <View style={[styles.scoreBadge, { backgroundColor: selectedBlock.score >= 0 ? '#22c55e' : '#ef4444' }]}>
+                        <Text style={styles.scoreText}>{selectedBlock.score}</Text>
+                    </View>
                 </View>
-                <View style={[styles.scoreBadge, { backgroundColor: selectedBlock.score >= 0 ? '#22c55e' : '#ef4444' }]}>
-                    <Text style={styles.scoreTitle}>SCORE</Text>
-                    <Text style={styles.scoreText}>{selectedBlock.score}</Text>
+                <View style={styles.divider} />
+                <View style={styles.reasonsContainer}>
+                    {selectedBlock.reasons?.map((r: string, i: number) => <Text key={i} style={styles.reasonText}>{r}</Text>)}
                 </View>
-            </View>
-            <TouchableOpacity style={styles.closeButton} onPress={() => setSelectedBlock(null)}>
+              </>
+            ) : (
+              // REPORT UI
+              <>
+                <View style={styles.reportHeaderRow}>
+                    <Ionicons name={selectedReport.type === 'safety' ? 'warning' : 'volume-high'} size={24} color={selectedReport.type === 'safety' ? '#ef4444' : '#fbbf24'} />
+                    <Text style={styles.reportTitle}>{selectedReport.type === 'safety' ? 'Safety Alert' : 'Noise'}</Text>
+                </View>
+                <Text style={styles.reportDescription}>"{selectedReport.description}"</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10 }}>
+                  <Text style={styles.voteText}>
+                    Community Trust Score: {selectedReport.votes || 0}
+                  </Text>
+
+                  {votedReportIds.includes(selectedReport.id) && (
+                    <View style={styles.votedBadge}>
+                      <Ionicons name="checkmark-circle" size={14} color="#22c55e" />
+                      <Text style={styles.votedBadgeText}>Voted</Text>
+                    </View>
+                  )}
+                </View>
+
+                <View style={styles.divider} />
+                <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+                    <TouchableOpacity 
+                      disabled={votedReportIds.includes(selectedReport.id)}
+                      style={[styles.voteButton, {backgroundColor: '#fee2e2', opacity: votedReportIds.includes(selectedReport.id) ? 0.5 : 1}]} 
+                      onPress={() => handleVote(selectedReport.id, 'down')}
+                    >
+                        <Ionicons name="thumbs-down" size={18} color="#ef4444" /><Text style={{color:'#ef4444', fontWeight:'bold', marginLeft:5}}>Fake</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity 
+                      disabled={votedReportIds.includes(selectedReport.id)}
+                      style={[styles.voteButton, {backgroundColor: '#dcfce7', opacity: votedReportIds.includes(selectedReport.id) ? 0.5 : 1}]} 
+                      onPress={() => handleVote(selectedReport.id, 'up')}
+                    >
+                        <Ionicons name="thumbs-up" size={18} color="#22c55e" /><Text style={{color:'#22c55e', fontWeight:'bold', marginLeft:5}}>Verify</Text>
+                    </TouchableOpacity>
+                </View>
+              </>
+            )}
+            
+            <TouchableOpacity style={styles.closeButton} onPress={() => {setSelectedBlock(null); setSelectedReport(null);}}>
                 <Ionicons name="close-circle" size={28} color="#555" />
             </TouchableOpacity>
-            <View style={styles.divider} />
-            <Text style={styles.reasonsTitle}>LIVABILITY FACTORS</Text>
-            <View style={styles.reasonsContainer}>
-                {selectedBlock.reasons && selectedBlock.reasons.map((r: string, i: number) => (
-                <Text key={i} style={styles.reasonText}>{r}</Text>
-                ))}
-                {(!selectedBlock.reasons || selectedBlock.reasons.length === 0) && <Text style={styles.reasonText}>No significant data recorded.</Text>}
-            </View>
             </Animated.View>
         )}
 
-        {/* LEGEND */}
-        {!selectedBlock && !isLoading && !searchMode && (
+        {!selectedBlock && !selectedReport && !isLoading && !searchMode && (
             <View style={styles.legendContainer}>
             <Text style={styles.legendTitle}>Livability Index</Text>
             <View style={styles.legendItem}><View style={[styles.legendBox, { backgroundColor: 'rgba(0, 255, 0, 0.4)' }]} /><Text style={styles.legendText}>High</Text></View>
@@ -309,11 +390,9 @@ export default function MapScreen() {
             </View>
         )}
 
-        {/* FAB */}
         {!isLoading && !searchMode && <FAB onPress={() => setModalVisible(true)} />}
       </View>
 
-      {/* 📺 SCREEN 2: SEARCH SCREEN (Visible only when searching) */}
       {searchMode && (
         <SafeAreaView style={styles.searchScreenContainer}>
           <View style={styles.modalHeader}>
@@ -323,36 +402,21 @@ export default function MapScreen() {
             <Text style={styles.modalTitle}>Search Location</Text>
             <View style={{width: 24}} /> 
           </View>
-          
           <View style={styles.searchBody}>
             <GooglePlacesAutocomplete
                 placeholder='Enter address...'
                 fetchDetails={true}
                 autoFocus={true} 
                 debounce={400}
-                minLength={2}
                 onPress={handleSearchSelect}
-                
-                // 💣 PROP BOMBARDMENT: Force keyboard to behave
                 keyboardShouldPersistTaps='always'
-                listProps={{ keyboardShouldPersistTaps: 'always' }}
-                flatListProps={{ keyboardShouldPersistTaps: 'always' }}
-                scrollViewProps={{ keyboardShouldPersistTaps: 'always' }}
-                
-                query={{ 
-                    key: GOOGLE_API_KEY, language: 'en', components: 'country:ca', 
-                    location: '43.2557,-79.8711', radius: '10000', strictbounds: true 
-                }}
+                query={{ key: GOOGLE_API_KEY, language: 'en', components: 'country:ca', location: '43.2557,-79.8711', radius: '10000', strictbounds: true }}
                 styles={{
                     container: { flex: 1, backgroundColor: '#000' },
-                    textInputContainer: { backgroundColor: '#000', paddingHorizontal: 10 },
                     textInput: styles.modalInput,
-                    listView: { backgroundColor: '#000' },
-                    row: { backgroundColor: '#000', paddingVertical: 15, borderBottomColor: '#333', borderBottomWidth: 1 },
-                    description: { color: 'white', fontSize: 16 },
-                    poweredContainer: { backgroundColor: '#000' }
+                    description: { color: 'white' },
+                    row: { backgroundColor: '#000' },
                 }}
-                textInputProps={{ placeholderTextColor: '#666' }}
             />
           </View>
         </SafeAreaView>
@@ -366,49 +430,56 @@ export default function MapScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#000' },
-  mapContainer: { width: '100%', overflow: 'hidden' }, // Ensure Map hides cleanly
+  mapContainer: { width: '100%', overflow: 'hidden' }, 
   map: { width: '100%', height: '100%' },
-  
-  fakeSearchWrapper: { 
-    position: 'absolute', top: 60, width: '90%', alignSelf: 'center', zIndex: 100,
-    backgroundColor: '#1c1c1e', height: 50, borderRadius: 25,
-    flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, elevation: 8,
-    borderWidth: 1, borderColor: '#333'
-  },
+  fakeSearchWrapper: { position: 'absolute', top: 60, width: '90%', alignSelf: 'center', zIndex: 100, backgroundColor: '#1c1c1e', height: 50, borderRadius: 25, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, borderWidth: 1, borderColor: '#333' },
   fakeSearchText: { fontSize: 16, fontWeight: '500' },
-
-  // SEARCH SCREEN STYLES
   searchScreenContainer: { flex: 1, backgroundColor: '#000' },
-  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: '#333' },
-  backButton: { padding: 5 },
+  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingVertical: 10 },
   modalTitle: { fontSize: 18, fontWeight: 'bold', color: 'white' },
-  searchBody: { flex: 1, padding: 15, backgroundColor: '#000' }, 
-  modalInput: { backgroundColor: '#1c1c1e', borderRadius: 8, height: 50, paddingHorizontal: 15, fontSize: 16, color: 'white', marginBottom: 10 },
-
+  searchBody: { flex: 1, padding: 15 }, 
+  modalInput: { backgroundColor: '#1c1c1e', borderRadius: 8, height: 50, paddingHorizontal: 15, fontSize: 16, color: 'white' },
   loadingOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: '#000', justifyContent: 'center', alignItems: 'center', zIndex: 999 },
-  loadingText: { color: '#fbbf24', marginTop: 15, fontSize: 16, fontWeight: 'bold', letterSpacing: 1 },
-
-  card: { position: 'absolute', bottom: 30, left: 15, right: 15, backgroundColor: '#1c1c1e', borderRadius: 24, padding: 24, paddingTop: 12, shadowColor: '#000', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.5, shadowRadius: 15, elevation: 20, zIndex: 50 },
+  loadingText: { color: '#fbbf24', marginTop: 15, fontSize: 16, fontWeight: 'bold' },
+  card: { position: 'absolute', bottom: 30, left: 15, right: 15, backgroundColor: '#1c1c1e', borderRadius: 24, padding: 20, zIndex: 50 },
   cardHandle: { width: 40, height: 4, backgroundColor: '#333', borderRadius: 2, alignSelf: 'center', marginBottom: 15 },
-  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', paddingRight: 30 },
-  cardZoneName: { color: 'white', fontSize: 20, fontWeight: '800', marginBottom: 8, letterSpacing: 0.5 },
-  rentRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 4 },
-  rentLabel: { color: '#888', fontSize: 13, fontWeight: '600', marginRight: 4 },
-  rentValue: { color: '#fbbf24', fontSize: 16, fontWeight: '700' },
-  rentDivider: { width: 1, height: 14, backgroundColor: '#444', marginHorizontal: 12 },
-  cardSubtitle: { color: '#666', fontSize: 11, fontStyle: 'italic', marginTop: 4 },
-  scoreBadge: { width: 56, height: 56, borderRadius: 16, justifyContent: 'center', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 3 },
-  scoreTitle: { color: 'rgba(255,255,255,0.8)', fontSize: 8, fontWeight: 'bold' },
-  scoreText: { color: 'white', fontSize: 22, fontWeight: '900' },
-  closeButton: { position: 'absolute', top: 15, right: 15, zIndex: 10 },
-  divider: { height: 1, backgroundColor: '#333', marginVertical: 18 },
-  reasonsTitle: { color: '#666', fontSize: 11, fontWeight: '800', marginBottom: 10, letterSpacing: 1 },
+  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  cardZoneName: { color: 'white', fontSize: 20, fontWeight: '800' },
+  rentRow: { flexDirection: 'row', alignItems: 'center', marginTop: 4 },
+  rentLabel: { color: '#888', fontSize: 13, marginRight: 4 },
+  rentValue: { color: '#fbbf24', fontSize: 14, fontWeight: '700' },
+  rentDivider: { width: 1, height: 14, backgroundColor: '#444', marginHorizontal: 10 },
+  scoreBadge: { width: 45, height: 45, borderRadius: 15, justifyContent: 'center', alignItems: 'center' },
+  scoreText: { color: 'white', fontSize: 20, fontWeight: 'bold' },
+  closeButton: { position: 'absolute', top: 15, right: 15 },
+  divider: { height: 1, backgroundColor: '#333', marginVertical: 15 },
   reasonsContainer: { flexDirection: 'row', flexWrap: 'wrap' },
-  reasonText: { color: '#e5e5e5', fontSize: 13, marginRight: 8, marginBottom: 8, backgroundColor: '#2c2c2e', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8, overflow:'hidden', fontWeight: '500' },
+  reasonText: { color: '#eee', backgroundColor: '#333', padding: 6, borderRadius: 8, marginRight: 8, marginBottom: 8, fontSize: 12 },
+  reportHeaderRow: { flexDirection: 'row', alignItems: 'center' },
+  reportTitle: { color: 'white', fontSize: 18, fontWeight: 'bold', marginLeft: 10 },
+  reportDescription: { color: '#ccc', marginTop: 8, fontStyle: 'italic' },
+  voteText: { color: '#888', fontSize: 12, marginTop: 10 },
+  voteButton: { flex: 0.48, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', padding: 12, borderRadius: 12 },
   legendContainer: { position: 'absolute', bottom: 100, left: 20, backgroundColor: 'rgba(28,28,30,0.9)', padding: 10, borderRadius: 10 },
   legendTitle: { color: '#888', fontSize: 10, fontWeight: 'bold', marginBottom: 4 },
   legendItem: { flexDirection: 'row', alignItems: 'center', marginBottom: 5 },
   legendBox: { width: 12, height: 12, borderRadius: 3, marginRight: 8 },
-  legendText: { color: '#ccc', fontSize: 12 }
+  legendText: { color: '#ccc', fontSize: 12 },
+  votedBadge: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  backgroundColor: '#052e16',
+  borderRadius: 12,
+  paddingHorizontal: 8,
+  paddingVertical: 3,
+  marginLeft: 8,
+},
+
+votedBadgeText: {
+  color: '#22c55e',
+  fontSize: 11,
+  fontWeight: 'bold',
+  marginLeft: 4,
+},
+
 });
