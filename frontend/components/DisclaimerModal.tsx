@@ -28,7 +28,7 @@ export default function DisclaimerModal() {
     <Modal visible={visible} transparent animationType="fade">
       <View style={styles.overlay}>
         <View style={styles.card}>
-          <Text style={styles.title}>Welcome to LiveHamilton 🇨🇦</Text>
+          <Text style={styles.title}>Welcome to Livability (Hamilton) 🇨🇦</Text>
           
           <Text style={styles.sectionTitle}>⚠️ Important Data Notice</Text>
           <Text style={styles.body}>
