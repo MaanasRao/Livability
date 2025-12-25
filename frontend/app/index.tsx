@@ -11,7 +11,7 @@ import ReportModal from '../components/ReportModal';
 import DisclaimerModal from '../components/DisclaimerModal';
 
 // ⚠️ CONFIGURATION
-const API_URL = "http://192.168.2.34:8000";
+const API_URL = process.env.EXPO_PUBLIC_API_URL;
 const GOOGLE_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_API_KEY;
 const STORAGE_KEY = '@voted_reports';
 
@@ -190,34 +190,75 @@ export default function MapScreen() {
     finally { setIsDataLoaded(true); }
   };
 
-  const handleSubmit = async (reportData: any) => {
-    setIsSubmitting(true);
+ const handleSubmit = async (reportData: any) => {
+  setIsSubmitting(true);
+  
+  try {
+    // 1. Get Permission
     let { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== 'granted') {
-        Alert.alert("Permission denied", "We need location access.");
-        setIsSubmitting(false);
-        return;
+      Alert.alert("Permission denied", "We need location access.");
+      setIsSubmitting(false);
+      return;
     }
+
+    // 2. Get Real Location
     let loc = await Location.getCurrentPositionAsync({});
-    const jitter = (Math.random() - 0.5) * 0.0005;
+    let userLat = loc.coords.latitude;
+    let userLng = loc.coords.longitude;
+    let finalDescription = reportData.description;
+
+    // --- SMART GEOFENCE LOGIC ---
+    const HAMILTON_LAT = 43.2557;
+    const HAMILTON_LNG = -79.8711;
     
-    try {
-      await fetch(`${API_URL}/user_reports`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          type: reportData.type,
-          lat: loc.coords.latitude + jitter,
-          lng: loc.coords.longitude + jitter,
-          description: reportData.description
-        }),
-      });
-      await fetchData(); 
-      Alert.alert("Success", "Report Pinned! 📍");
-      setModalVisible(false); 
-    } catch (e) { Alert.alert("Error", "Failed to submit."); } 
-    finally { setIsSubmitting(false); }
-  };
+    const dist = Math.sqrt(
+      Math.pow(userLat - HAMILTON_LAT, 2) + Math.pow(userLng - HAMILTON_LNG, 2)
+    );
+
+    // If user is > ~50km away
+    if (dist > 0.45) {
+      // Force location to Hamilton with small random offset
+      userLat = HAMILTON_LAT + (Math.random() - 0.5) * 0.015;
+      userLng = HAMILTON_LNG + (Math.random() - 0.5) * 0.015;
+      
+      // Tag the data as "DEMO"
+      finalDescription = `${reportData.description} (Remote Demo)`;
+    }
+    // -------------------------------
+
+    // Submit the report
+    const response = await fetch(`${API_URL}/user_reports`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type: reportData.type,
+        lat: userLat, 
+        lng: userLng,
+        description: finalDescription
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Server response not ok');
+    }
+
+    // Refresh data
+    await fetchData();
+    
+    // Close modal
+    setModalVisible(false);
+    
+    // Show single success alert
+    Alert.alert("Success", "Report submitted successfully! 📍");
+    
+  } catch (error) { 
+    console.error("Submit error:", error);
+    Alert.alert("Error", "Failed to submit report. Please try again."); 
+  } finally { 
+    setIsSubmitting(false); 
+  }
+};
 
   useEffect(() => { fetchData(); }, []);
 
