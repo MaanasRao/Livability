@@ -10,7 +10,7 @@ import ReportModal from '../components/ReportModal';
 import DisclaimerModal from '../components/DisclaimerModal';
 
 // ⚠️ CONFIGURATION
-const API_URL = 'http://192.168.2.34:8000'; 
+const API_URL = process.env.EXPO_PUBLIC_API_URL;
 const GOOGLE_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_API_KEY || 'YOUR_GOOGLE_API_KEY';
 
 const RENT_ZONES = [
