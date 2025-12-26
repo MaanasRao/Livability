@@ -27,17 +27,15 @@ const RENT_ZONES = [
   { name: "Ancaster/Dundas", lat: 43.235, lng: -79.945, p1: 1493, p2: 1811 }
 ];
 
-// Pin color helper function
-const getPinColor = (type) => {
-  switch(type) {
-    case 'safety': return 'red';
-    case 'noise': return '#fbbf24'; // gold
-    case 'maintenance': return '#22c55e'; // green
-    case 'trash': return '#a855f7'; // purple
-    case 'traffic': return '#3b82f6'; // blue
-    default: return 'white'; // white for all other types
-  }
-}
+
+const REPORT_THEME: Record<string, { label: string; icon: any; color: string; pinColor: string }> = {
+  safety: { label: 'Safety Alert', icon: 'warning', color: '#ef4444', pinColor: 'red' },
+  noise: { label: 'Noise Report', icon: 'volume-high', color: '#fbbf24', pinColor: 'orange' }, // MapView uses 'orange' not 'gold' for standard pins
+  maintenance: { label: 'Maintenance', icon: 'hammer', color: '#22c55e', pinColor: 'green' },
+  trash: { label: 'Trash/Litter', icon: 'trash', color: '#a855f7', pinColor: 'purple' },
+  traffic: { label: 'Traffic Issue', icon: 'car', color: '#3b82f6', pinColor: 'blue' },
+  default: { label: 'Community Report', icon: 'information-circle', color: '#6b7280', pinColor: 'tan' }
+};
 
 export default function MapScreen() {
   const mapRef = useRef<MapView>(null);
@@ -48,8 +46,8 @@ export default function MapScreen() {
   const [gridPolygons, setGridPolygons] = useState<any[]>([]);
   const [userReports, setUserReports] = useState<any[]>([]);
   const [selectedBlock, setSelectedBlock] = useState<any>(null);
-  const [selectedReport, setSelectedReport] = useState<any>(null); // 🆕 Track selected Pin
-  const [votedReportIds, setVotedReportIds] = useState<number[]>([]); // 🛡️ Anti-Spam tracker
+  const [selectedReport, setSelectedReport] = useState<any>(null); 
+  const [votedReportIds, setVotedReportIds] = useState<number[]>([]); 
   const [displayAddress, setDisplayAddress] = useState(""); 
   
   const [isMapReady, setIsMapReady] = useState(false); 
@@ -85,11 +83,9 @@ export default function MapScreen() {
       
       if (!res.ok) throw new Error('Failed');
 
-      // 1. Remove from local state immediately
       setUserReports(prev => prev.filter(r => r.id !== id));
       setSelectedReport(null);
 
-      // 2.Success Message
       Alert.alert("Success 🟢", "The report has been resolved and removed from the map.");
     } catch {
       Alert.alert('Error', 'Could not mark report as resolved');
@@ -190,75 +186,75 @@ export default function MapScreen() {
     finally { setIsDataLoaded(true); }
   };
 
- const handleSubmit = async (reportData: any) => {
-  setIsSubmitting(true);
-  
-  try {
-    // 1. Get Permission
-    let { status } = await Location.requestForegroundPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert("Permission denied", "We need location access.");
-      setIsSubmitting(false);
-      return;
-    }
-
-    // 2. Get Real Location
-    let loc = await Location.getCurrentPositionAsync({});
-    let userLat = loc.coords.latitude;
-    let userLng = loc.coords.longitude;
-    let finalDescription = reportData.description;
-
-    // --- SMART GEOFENCE LOGIC ---
-    const HAMILTON_LAT = 43.2557;
-    const HAMILTON_LNG = -79.8711;
+  const handleSubmit = async (reportData: any) => {
+    setIsSubmitting(true);
     
-    const dist = Math.sqrt(
-      Math.pow(userLat - HAMILTON_LAT, 2) + Math.pow(userLng - HAMILTON_LNG, 2)
-    );
+    try {
+      // 1. Get Permission
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert("Permission denied", "We need location access.");
+        setIsSubmitting(false);
+        return;
+      }
 
-    // If user is > ~50km away
-    if (dist > 0.45) {
-      // Force location to Hamilton with small random offset
-      userLat = HAMILTON_LAT + (Math.random() - 0.5) * 0.015;
-      userLng = HAMILTON_LNG + (Math.random() - 0.5) * 0.015;
+      // 2. Get Real Location
+      let loc = await Location.getCurrentPositionAsync({});
+      let userLat = loc.coords.latitude;
+      let userLng = loc.coords.longitude;
+      let finalDescription = reportData.description;
+
+      // --- SMART GEOFENCE LOGIC ---
+      const HAMILTON_LAT = 43.2557;
+      const HAMILTON_LNG = -79.8711;
       
-      // Tag the data as "DEMO"
-      finalDescription = `${reportData.description} (Remote Demo)`;
+      const dist = Math.sqrt(
+        Math.pow(userLat - HAMILTON_LAT, 2) + Math.pow(userLng - HAMILTON_LNG, 2)
+      );
+
+      // If user is > ~50km away
+      if (dist > 0.45) {
+        // Force location to Hamilton with small random offset
+        userLat = HAMILTON_LAT + (Math.random() - 0.5) * 0.015;
+        userLng = HAMILTON_LNG + (Math.random() - 0.5) * 0.015;
+        
+        // Tag the data as "DEMO"
+        finalDescription = `${reportData.description} (Remote Demo)`;
+      }
+      // -------------------------------
+
+      // Submit the report
+      const response = await fetch(`${API_URL}/user_reports`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: reportData.type,
+          lat: userLat, 
+          lng: userLng,
+          description: finalDescription
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Server response not ok');
+      }
+
+      // Refresh data
+      await fetchData();
+      
+      // Close modal
+      setModalVisible(false);
+      
+      // Show single success alert
+      Alert.alert("Success", "Report submitted successfully! 📍");
+      
+    } catch (error) { 
+      console.error("Submit error:", error);
+      Alert.alert("Error", "Failed to submit report. Please try again."); 
+    } finally { 
+      setIsSubmitting(false); 
     }
-    // -------------------------------
-
-    // Submit the report
-    const response = await fetch(`${API_URL}/user_reports`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        type: reportData.type,
-        lat: userLat, 
-        lng: userLng,
-        description: finalDescription
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error('Server response not ok');
-    }
-
-    // Refresh data
-    await fetchData();
-    
-    // Close modal
-    setModalVisible(false);
-    
-    // Show single success alert
-    Alert.alert("Success", "Report submitted successfully! 📍");
-    
-  } catch (error) { 
-    console.error("Submit error:", error);
-    Alert.alert("Error", "Failed to submit report. Please try again."); 
-  } finally { 
-    setIsSubmitting(false); 
-  }
-};
+  };
 
   useEffect(() => { fetchData(); }, []);
 
@@ -334,14 +330,24 @@ export default function MapScreen() {
             </Text>
         </TouchableOpacity>
 
-        <MapView
+          <MapView
             ref={mapRef} 
             style={styles.map} 
             initialRegion={HAMILTON_REGION} 
             showsUserLocation={true} 
             provider={PROVIDER_DEFAULT}
             userInterfaceStyle="dark"
-            onMapReady={() => setIsMapReady(true)} 
+            // 👇 CHANGED: 9 allows you to see the whole city, but not the whole world
+            minZoomLevel={9} 
+            maxZoomLevel={20}
+            onMapReady={() => {
+                setIsMapReady(true);
+                // 🔒 KEEPS THE INVISIBLE WALLS (Hamilton/Burlington/Ancaster)
+                mapRef.current?.setMapBoundaries(
+                    { latitude: 43.4500, longitude: -79.6000 }, // North-East (Burlington)
+                    { latitude: 43.1000, longitude: -80.1000 }  // South-West (Ancaster/Dundas)
+                );
+            }}
             onPress={() => { setSelectedBlock(null); setSelectedReport(null); }}
         >
             {isDataLoaded && gridPolygons.map((poly: any, index: number) => (
@@ -355,14 +361,18 @@ export default function MapScreen() {
                 onPress={(e) => { e.stopPropagation(); setSelectedReport(null); setSelectedBlock(poly); }}
             />
             ))}
-            {isDataLoaded && userReports.map((event: any) => (
-            <Marker 
-                key={event.id} 
-                coordinate={{ latitude: event.lat, longitude: event.lng }} 
-                pinColor={getPinColor(event.type)}
-                onPress={(e) => { e.stopPropagation(); setSelectedBlock(null); setSelectedReport(event); }}
-            />
-            ))}
+            
+            {isDataLoaded && userReports.map((event: any) => {
+                const theme = REPORT_THEME[event.type] || REPORT_THEME.default;
+                return (
+                    <Marker 
+                        key={event.id} 
+                        coordinate={{ latitude: event.lat, longitude: event.lng }} 
+                        pinColor={theme.pinColor}
+                        onPress={(e) => { e.stopPropagation(); setSelectedBlock(null); setSelectedReport(event); }}
+                    />
+                );
+            })}
         </MapView>
 
         {isLoading && (
@@ -409,76 +419,73 @@ export default function MapScreen() {
                 </View>
               </>
             ) : (
-              // --- USER REPORT UI ---
-              <>
-                <View style={styles.reportHeaderRow}>
-                  <Ionicons
-                    name={
-                      selectedReport.type === 'safety' ? 'warning' : 
-                      selectedReport.type === 'noise' ? 'volume-high' : 
-                      selectedReport.type === 'maintenance' ? 'hammer' : 
-                      selectedReport.type === 'trash' ? 'trash' : 'information-circle'
-                    }
-                    size={24}
-                    color={getPinColor(selectedReport.type)}
-                  />
-                  <Text style={styles.reportTitle}>
-                    {selectedReport.type === 'safety' ? 'Safety Alert' : 
-                    selectedReport.type === 'noise' ? 'Noise Report' : 
-                    selectedReport.type === 'maintenance' ? 'Maintenance' : 
-                    selectedReport.type === 'trash' ? 'Trash/Litter' : 'Community Report'}
-                  </Text>
-                </View>
-
-                <Text style={styles.reportDescription}>"{selectedReport.description}"</Text>
-
-                <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10 }}>
-                  <Text style={styles.voteText}>Community Trust Score: {selectedReport.votes || 0}</Text>
-                  {votedReportIds.includes(selectedReport.id) && (
-                    <View style={styles.votedBadge}>
-                      <Ionicons name="checkmark-circle" size={14} color="#22c55e" />
-                      <Text style={styles.votedBadgeText}>Voted</Text>
+              // 3. UPDATED USER REPORT UI TO USE THEME (Labels & Colors)
+              (() => {
+                const theme = REPORT_THEME[selectedReport.type] || REPORT_THEME.default;
+                return (
+                    <>
+                    <View style={styles.reportHeaderRow}>
+                        <Ionicons
+                        name={theme.icon}
+                        size={24}
+                        color={theme.color}
+                        />
+                        <Text style={styles.reportTitle}>
+                        {theme.label} 
+                        </Text>
                     </View>
-                  )}
-                </View>
 
-                <View style={styles.divider} />
+                    <Text style={styles.reportDescription}>"{selectedReport.description}"</Text>
 
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                  {/* FAKE BUTTON */}
-                  <TouchableOpacity
-                    disabled={votedReportIds.includes(selectedReport.id)}
-                    style={[
-                      styles.voteButton,
-                      { backgroundColor: '#fee2e2', flex: 0.25, opacity: votedReportIds.includes(selectedReport.id) ? 0.5 : 1 }
-                    ]}
-                    onPress={() => handleVote(selectedReport.id, 'down')}
-                  >
-                    <Ionicons name="thumbs-down" size={18} color="#ef4444" />
-                  </TouchableOpacity>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10 }}>
+                        <Text style={styles.voteText}>Community Trust Score: {selectedReport.votes || 0}</Text>
+                        {votedReportIds.includes(selectedReport.id) && (
+                        <View style={styles.votedBadge}>
+                            <Ionicons name="checkmark-circle" size={14} color="#22c55e" />
+                            <Text style={styles.votedBadgeText}>Voted</Text>
+                        </View>
+                        )}
+                    </View>
 
-                  {/* VERIFY BUTTON */}
-                  <TouchableOpacity
-                    disabled={votedReportIds.includes(selectedReport.id)}
-                    style={[
-                      styles.voteButton,
-                      { backgroundColor: '#dcfce7', flex: 0.25, opacity: votedReportIds.includes(selectedReport.id) ? 0.5 : 1 }
-                    ]}
-                    onPress={() => handleVote(selectedReport.id, 'up')}
-                  >
-                    <Ionicons name="thumbs-up" size={18} color="#22c55e" />
-                  </TouchableOpacity>
+                    <View style={styles.divider} />
 
-                  {/* RESOLVE BUTTON */}
-                  <TouchableOpacity
-                    style={[styles.voteButton, { backgroundColor: '#3b82f6', flex: 0.42, justifyContent: 'center' }]}
-                    onPress={() => handleResolve(selectedReport.id)}
-                  >
-                    <Ionicons name="checkmark-done" size={18} color="white" />
-                    <Text style={{ color: 'white', fontWeight: 'bold', marginLeft: 5, fontSize: 12 }}>Resolve</Text>
-                  </TouchableOpacity>
-                </View>
-              </>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                        {/* FAKE BUTTON */}
+                        <TouchableOpacity
+                        disabled={votedReportIds.includes(selectedReport.id)}
+                        style={[
+                            styles.voteButton,
+                            { backgroundColor: '#fee2e2', flex: 0.25, opacity: votedReportIds.includes(selectedReport.id) ? 0.5 : 1 }
+                        ]}
+                        onPress={() => handleVote(selectedReport.id, 'down')}
+                        >
+                        <Ionicons name="thumbs-down" size={18} color="#ef4444" />
+                        </TouchableOpacity>
+
+                        {/* VERIFY BUTTON */}
+                        <TouchableOpacity
+                        disabled={votedReportIds.includes(selectedReport.id)}
+                        style={[
+                            styles.voteButton,
+                            { backgroundColor: '#dcfce7', flex: 0.25, opacity: votedReportIds.includes(selectedReport.id) ? 0.5 : 1 }
+                        ]}
+                        onPress={() => handleVote(selectedReport.id, 'up')}
+                        >
+                        <Ionicons name="thumbs-up" size={18} color="#22c55e" />
+                        </TouchableOpacity>
+
+                        {/* RESOLVE BUTTON */}
+                        <TouchableOpacity
+                        style={[styles.voteButton, { backgroundColor: '#3b82f6', flex: 0.42, justifyContent: 'center' }]}
+                        onPress={() => handleResolve(selectedReport.id)}
+                        >
+                        <Ionicons name="checkmark-done" size={18} color="white" />
+                        <Text style={{ color: 'white', fontWeight: 'bold', marginLeft: 5, fontSize: 12 }}>Resolve</Text>
+                        </TouchableOpacity>
+                    </View>
+                    </>
+                );
+              })()
             )}
 
             {/* CLOSE BUTTON */}
@@ -522,12 +529,20 @@ export default function MapScreen() {
                 debounce={400}
                 onPress={handleSearchSelect}
                 keyboardShouldPersistTaps='always'
+                textInputProps={{
+                placeholderTextColor: '#9ca3af', 
+                returnKeyType: "search"
+                  }}
                 query={{ key: GOOGLE_API_KEY, language: 'en', components: 'country:ca', location: '43.2557,-79.8711', radius: '10000', strictbounds: true }}
                 styles={{
                     container: { flex: 1, backgroundColor: '#000' },
                     textInput: styles.modalInput,
                     description: { color: 'white' },
                     row: { backgroundColor: '#000' },
+                    listView: { backgroundColor: '#000' }, 
+                    separator: { backgroundColor: '#333' },
+                    poweredContainer: { backgroundColor: '#000', borderTopWidth: 0 },
+                    powered: { opacity: 0.7 } 
                 }}
             />
           </View>
@@ -593,3 +608,5 @@ const styles = StyleSheet.create({
     marginLeft: 4,
   },
 });
+
+
