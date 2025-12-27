@@ -70,7 +70,7 @@ uvicorn main:app --reload --host 0.0.0.0 --port 8000
 The mobile app.
 
 ```
-### 3. 3. Frontend Setup
+### 3. Frontend Setup
 ```
 # Navigate to frontend
 cd frontend
