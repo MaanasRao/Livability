@@ -4,6 +4,18 @@
 
 Livability is a React Native mobile application designed to help students and residents find the best places to live. It combines static data (rent prices, amenities) with dynamic, crowd-sourced data (safety alerts, noise complaints) to generate a live "Livability Score" for every city block.
 
+## 📲 Try it Live (No Install Required)
+You can run the full app directly in your browser using the **Appetize.io** simulator:
+
+[![Run on Appetize.io](https://img.shields.io/badge/Run%20Live-Appetize.io-black?style=for-the-badge&logo=react&logoColor=white)](https://appetize.io/app/b_im3o2k77ututmdwx642ai57cmm)
+
+*(Note: Wait for the simulated Android phone to load, then tap the screen to begin.)*
+
+**Prefer to run it on your own phone?**
+[**Download Livability v1.0 (APK)**](https://github.com/MaanasRao/Livability/releases/download/v1.0/Livability-v1.0.apk)
+
+---
+
 ## 📱 Features
 
 * **Interactive Heatmap:** A visual grid overlay showing "Livability Scores" (0-10) based on rent prices, proximity to grocery/transit, and industrial zoning.
@@ -101,6 +113,18 @@ npx expo start
 Scan the QR code with your phone or press a for Android Emulator.
 
 ```
+
+## 📸 Screenshots
+
+### 🗺️ Map & Search
+| Heatmap & Rent Data | Place Search |
+|:---:|:---:|
+| ![Heatmap Details](screenshots/heatmap_details.png) | ![Search](screenshots/search.png) |
+
+### 📣 Community Reporting
+| Choose Topic | Add Details | Voting & Resolution |
+|:---:|:---:|:---:|
+| ![Report Modal](screenshots/report_modal.png) | ![Report Input](screenshots/report_input.png) | ![Report Details](screenshots/report_details.png) |
 
 🔒 Security Architecture
 This project implements a 3-Key Security System to protect API quotas and data integrity:
