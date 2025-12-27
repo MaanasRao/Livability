@@ -525,7 +525,7 @@ export default function MapScreen() {
             </View>
         )}
 
-        {!isLoading && !searchMode && <FAB onPress={() => setModalVisible(true)} />}
+        {!isLoading && !searchMode && !selectedBlock && !selectedReport && <FAB onPress={() => setModalVisible(true)} />}
       </View>
 
       {searchMode && (
