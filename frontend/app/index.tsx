@@ -10,9 +10,10 @@ import FAB from '../components/ui/FAB';
 import ReportModal from '../components/ReportModal';
 import DisclaimerModal from '../components/DisclaimerModal';
 
-// ⚠️ CONFIGURATION
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
-const GOOGLE_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_API_KEY;
+const GOOGLE_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_SEARCH_KEY;
+const BACKEND_API_KEY = process.env.EXPO_PUBLIC_BACKEND_SECRET;
+
 const STORAGE_KEY = '@voted_reports';
 
 const RENT_ZONES = [
@@ -27,10 +28,9 @@ const RENT_ZONES = [
   { name: "Ancaster/Dundas", lat: 43.235, lng: -79.945, p1: 1493, p2: 1811 }
 ];
 
-
-const REPORT_THEME: Record<string, { label: string; icon: any; color: string; pinColor: string }> = {
+const REPORT_THEME = {
   safety: { label: 'Safety Alert', icon: 'warning', color: '#ef4444', pinColor: 'red' },
-  noise: { label: 'Noise Report', icon: 'volume-high', color: '#fbbf24', pinColor: 'orange' }, // MapView uses 'orange' not 'gold' for standard pins
+  noise: { label: 'Noise Report', icon: 'volume-high', color: '#fbbf24', pinColor: 'orange' },
   maintenance: { label: 'Maintenance', icon: 'hammer', color: '#22c55e', pinColor: 'green' },
   trash: { label: 'Trash/Litter', icon: 'trash', color: '#a855f7', pinColor: 'purple' },
   traffic: { label: 'Traffic Issue', icon: 'car', color: '#3b82f6', pinColor: 'blue' },
@@ -38,16 +38,16 @@ const REPORT_THEME: Record<string, { label: string; icon: any; color: string; pi
 };
 
 export default function MapScreen() {
-  const mapRef = useRef<MapView>(null);
+  const mapRef = useRef(null);
   
   // -- STATE --
   const [modalVisible, setModalVisible] = useState(false);
   const [searchMode, setSearchMode] = useState(false); 
-  const [gridPolygons, setGridPolygons] = useState<any[]>([]);
-  const [userReports, setUserReports] = useState<any[]>([]);
-  const [selectedBlock, setSelectedBlock] = useState<any>(null);
-  const [selectedReport, setSelectedReport] = useState<any>(null); 
-  const [votedReportIds, setVotedReportIds] = useState<number[]>([]); 
+  const [gridPolygons, setGridPolygons] = useState([]);
+  const [userReports, setUserReports] = useState([]);
+  const [selectedBlock, setSelectedBlock] = useState(null);
+  const [selectedReport, setSelectedReport] = useState(null); 
+  const [votedReportIds, setVotedReportIds] = useState([]); 
   const [displayAddress, setDisplayAddress] = useState(""); 
   
   const [isMapReady, setIsMapReady] = useState(false); 
@@ -72,14 +72,20 @@ export default function MapScreen() {
     })();
   }, []);
 
-  const persistVotes = async (ids: number[]) => {
+  const persistVotes = async (ids) => {
     setVotedReportIds(ids);
     await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(ids));
   };
 
-  const handleResolve = async (id: number) => {
+  // 👇 SECURE RESOLVE
+  const handleResolve = async (id) => {
     try {
-      const res = await fetch(`${API_URL}/reports/${id}/resolve`, { method: 'POST' });
+      const res = await fetch(`${API_URL}/reports/${id}/resolve`, { 
+        method: 'POST',
+        headers: { 
+            'X-API-Key': BACKEND_API_KEY // <--- Secret Key Added
+        }
+      });
       
       if (!res.ok) throw new Error('Failed');
 
@@ -92,7 +98,6 @@ export default function MapScreen() {
     }
   };
 
-  // Handle Android Back Button
   useEffect(() => {
     const backAction = () => {
       if (searchMode) {
@@ -113,7 +118,7 @@ export default function MapScreen() {
   }, [isLoading]);
 
   // --- RENT & GRID LOGIC ---
-  const getRentForBlock = (lat: number, lng: number) => {
+  const getRentForBlock = (lat, lng) => {
     let closest = RENT_ZONES[0];
     let minDist = 9999;
     RENT_ZONES.forEach(zone => {
@@ -123,9 +128,10 @@ export default function MapScreen() {
     return closest;
   };
 
-  const generateGrid = (staticEvents: any[]) => {
+  // 👇 NEW 0-10 SCORING LOGIC
+  const generateGrid = (staticEvents) => {
     if (!Array.isArray(staticEvents)) return;
-    const grid: { [key: string]: { score: number, details: string[] } } = {};
+    const grid = {};
 
     staticEvents.forEach((event) => {
       if (!event.lat || !event.lng) return;
@@ -133,15 +139,18 @@ export default function MapScreen() {
       const gridY = Math.floor(event.lat / GRID_SIZE);
       const key = `${gridX},${gridY}`;
 
-      if (!grid[key]) grid[key] = { score: 0, details: [] };
+      // Start at 5 (Neutral)
+      if (!grid[key]) grid[key] = { score: 5, details: [] };
 
       let label = ""; let weight = 0;
+      
+      // Points Logic (Adding/Subtracting from 5)
       if (['park', 'school', 'amenity'].includes(event.type)) { label = '✅ Park/School (+2)'; weight = 2; } 
       else if (event.type === 'grocery') { label = '🛒 Grocery Nearby (+2)'; weight = 2; }
       else if (event.type === 'healthcare') { label = '🏥 Healthcare (+3)'; weight = 3; } 
       else if (event.type === 'mobility') { label = '🚌 Transit (+2)'; weight = 2; }
-      else if (event.type === 'industrial') { label = '🏭 Industrial (-5)'; weight = -5; } 
-      else if (event.type === 'noise_static') { label = '🚂 Noise Zone (-3)'; weight = -3; } 
+      else if (event.type === 'industrial') { label = '🏭 Industrial (-4)'; weight = -4; } 
+      else if (event.type === 'noise_static') { label = '🚂 Noise Zone (-2)'; weight = -2; } 
 
       if (label && !grid[key].details.includes(label)) {
         grid[key].score += weight;
@@ -151,16 +160,27 @@ export default function MapScreen() {
 
     const polygons = Object.keys(grid).map((key) => {
       const [gx, gy] = key.split(',').map(Number);
-      const { score, details } = grid[key];
+      let { score, details } = grid[key];
+
+      // CLAMP Score between 0 and 10
+      score = Math.max(0, Math.min(10, score));
+
+      // Color Logic based on 0-10 Scale
       let fillColor = 'transparent'; 
-      if (score >= 5) fillColor = 'rgba(0, 255, 0, 0.4)';          
-      else if (score > 0) fillColor = 'rgba(144, 238, 144, 0.4)'; 
-      else if (score <= -8) fillColor = 'rgba(255, 0, 0, 0.5)';    
-      else if (score < 0) fillColor = 'rgba(255, 165, 0, 0.4)';    
+      if (score >= 8) {
+        fillColor = 'rgba(34, 197, 94, 0.4)'; // Green (Excellent)
+      } else if (score >= 5) {
+        fillColor = 'rgba(234, 179, 8, 0.4)'; // Yellow/Orange (Average)
+      } else {
+        fillColor = 'rgba(239, 68, 68, 0.5)'; // Red (Poor)
+      }
+
       if (fillColor === 'transparent') return null;
+
       const minLng = gx * GRID_SIZE;
       const minLat = gy * GRID_SIZE;
       const rentData = getRentForBlock(minLat, minLng);
+
       return {
         id: key, score, rent: rentData, reasons: details, color: fillColor,
         coordinates: [
@@ -171,14 +191,15 @@ export default function MapScreen() {
         ]
       };
     }).filter(Boolean);
+
     setGridPolygons(polygons);
   };
 
   const fetchData = async () => {
     try {
       const [staticRes, reportsRes] = await Promise.all([
-        fetch(`${API_URL}/events`),
-        fetch(`${API_URL}/user_reports`)
+        fetch(`${API_URL}/events`), // Public GET (No key needed)
+        fetch(`${API_URL}/user_reports`) // Public GET (No key needed)
       ]);
       if (staticRes.ok) generateGrid(await staticRes.json());
       if (reportsRes.ok) setUserReports(await reportsRes.json());
@@ -186,11 +207,11 @@ export default function MapScreen() {
     finally { setIsDataLoaded(true); }
   };
 
-  const handleSubmit = async (reportData: any) => {
+  // 👇 SECURE SUBMIT
+  const handleSubmit = async (reportData) => {
     setIsSubmitting(true);
     
     try {
-      // 1. Get Permission
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
         Alert.alert("Permission denied", "We need location access.");
@@ -198,35 +219,27 @@ export default function MapScreen() {
         return;
       }
 
-      // 2. Get Real Location
       let loc = await Location.getCurrentPositionAsync({});
       let userLat = loc.coords.latitude;
       let userLng = loc.coords.longitude;
       let finalDescription = reportData.description;
 
-      // --- SMART GEOFENCE LOGIC ---
       const HAMILTON_LAT = 43.2557;
       const HAMILTON_LNG = -79.8711;
-      
-      const dist = Math.sqrt(
-        Math.pow(userLat - HAMILTON_LAT, 2) + Math.pow(userLng - HAMILTON_LNG, 2)
-      );
+      const dist = Math.sqrt(Math.pow(userLat - HAMILTON_LAT, 2) + Math.pow(userLng - HAMILTON_LNG, 2));
 
-      // If user is > ~50km away
       if (dist > 0.45) {
-        // Force location to Hamilton with small random offset
         userLat = HAMILTON_LAT + (Math.random() - 0.5) * 0.015;
         userLng = HAMILTON_LNG + (Math.random() - 0.5) * 0.015;
-        
-        // Tag the data as "DEMO"
         finalDescription = `${reportData.description} (Remote Demo)`;
       }
-      // -------------------------------
 
-      // Submit the report
       const response = await fetch(`${API_URL}/user_reports`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+            'Content-Type': 'application/json',
+            'X-API-Key': BACKEND_API_KEY // <--- Secret Key Added
+        },
         body: JSON.stringify({
           type: reportData.type,
           lat: userLat, 
@@ -235,17 +248,10 @@ export default function MapScreen() {
         }),
       });
 
-      if (!response.ok) {
-        throw new Error('Server response not ok');
-      }
+      if (!response.ok) throw new Error('Server response not ok');
 
-      // Refresh data
       await fetchData();
-      
-      // Close modal
       setModalVisible(false);
-      
-      // Show single success alert
       Alert.alert("Success", "Report submitted successfully! 📍");
       
     } catch (error) { 
@@ -266,14 +272,19 @@ export default function MapScreen() {
     }
   }, [selectedBlock, selectedReport, slideAnim]);
 
-  // --- VOTING LOGIC ---
-  const handleVote = async (id: number, type: 'up' | 'down') => {
+  // 👇 SECURE VOTE
+  const handleVote = async (id, type) => {
     if (votedReportIds.includes(id)) return;
 
     try {
       const res = await fetch(
         `${API_URL}/reports/${id}/vote?vote_type=${type}`,
-        { method: 'POST' }
+        { 
+            method: 'POST',
+            headers: { 
+                'X-API-Key': BACKEND_API_KEY // <--- Secret Key Added
+            }
+        }
       );
       const data = await res.json();
 
@@ -293,8 +304,7 @@ export default function MapScreen() {
     }
   };
 
-  // --- SEARCH LOGIC ---
-  const handleSearchSelect = (data: any, details: any = null) => {
+  const handleSearchSelect = (data, details = null) => {
     if (!details) { Alert.alert("Error", "No details found"); return; }
     const { lat, lng } = details.geometry.location;
     setDisplayAddress(data.description || "Selected Location");
@@ -314,7 +324,8 @@ export default function MapScreen() {
         setSelectedBlock(targetBlock);
     } else {
         const rent = getRentForBlock(lat, lng);
-        setSelectedBlock({ score: 0, reasons: ["No specific data here."], rent, id: 'temp' });
+        // Default score 5 for areas with no specific data
+        setSelectedBlock({ score: 5, reasons: ["No specific data here."], rent, id: 'temp' });
     }
   };
 
@@ -337,20 +348,18 @@ export default function MapScreen() {
             showsUserLocation={true} 
             provider={PROVIDER_DEFAULT}
             userInterfaceStyle="dark"
-            // 👇 CHANGED: 9 allows you to see the whole city, but not the whole world
             minZoomLevel={9} 
             maxZoomLevel={20}
             onMapReady={() => {
                 setIsMapReady(true);
-                // 🔒 KEEPS THE INVISIBLE WALLS (Hamilton/Burlington/Ancaster)
                 mapRef.current?.setMapBoundaries(
-                    { latitude: 43.4500, longitude: -79.6000 }, // North-East (Burlington)
-                    { latitude: 43.1000, longitude: -80.1000 }  // South-West (Ancaster/Dundas)
+                    { latitude: 43.4500, longitude: -79.6000 },
+                    { latitude: 43.1000, longitude: -80.1000 }  
                 );
             }}
             onPress={() => { setSelectedBlock(null); setSelectedReport(null); }}
-        >
-            {isDataLoaded && gridPolygons.map((poly: any, index: number) => (
+          >
+            {isDataLoaded && gridPolygons.map((poly, index) => (
             <Polygon 
                 key={index} 
                 coordinates={poly.coordinates} 
@@ -362,7 +371,7 @@ export default function MapScreen() {
             />
             ))}
             
-            {isDataLoaded && userReports.map((event: any) => {
+            {isDataLoaded && userReports.map((event) => {
                 const theme = REPORT_THEME[event.type] || REPORT_THEME.default;
                 return (
                     <Marker 
@@ -403,7 +412,8 @@ export default function MapScreen() {
                   <View
                     style={[
                       styles.scoreBadge,
-                      { backgroundColor: selectedBlock.score >= 0 ? '#22c55e' : '#ef4444' },
+                      // New color logic for badge
+                      { backgroundColor: selectedBlock.score >= 8 ? '#22c55e' : (selectedBlock.score >= 5 ? '#eab308' : '#ef4444') },
                     ]}
                   >
                     <Text style={styles.scoreText}>{selectedBlock.score}</Text>
@@ -411,7 +421,7 @@ export default function MapScreen() {
                 </View>
                 <View style={styles.divider} />
                 <View style={styles.reasonsContainer}>
-                  {selectedBlock.reasons?.map((r: string, i: number) => (
+                  {selectedBlock.reasons?.map((r, i) => (
                     <Text key={i} style={styles.reasonText}>
                       {r}
                     </Text>
@@ -419,7 +429,7 @@ export default function MapScreen() {
                 </View>
               </>
             ) : (
-              // 3. UPDATED USER REPORT UI TO USE THEME (Labels & Colors)
+              // USER REPORT UI
               (() => {
                 const theme = REPORT_THEME[selectedReport.type] || REPORT_THEME.default;
                 return (
@@ -450,7 +460,6 @@ export default function MapScreen() {
                     <View style={styles.divider} />
 
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                        {/* FAKE BUTTON */}
                         <TouchableOpacity
                         disabled={votedReportIds.includes(selectedReport.id)}
                         style={[
@@ -462,7 +471,6 @@ export default function MapScreen() {
                         <Ionicons name="thumbs-down" size={18} color="#ef4444" />
                         </TouchableOpacity>
 
-                        {/* VERIFY BUTTON */}
                         <TouchableOpacity
                         disabled={votedReportIds.includes(selectedReport.id)}
                         style={[
@@ -474,7 +482,6 @@ export default function MapScreen() {
                         <Ionicons name="thumbs-up" size={18} color="#22c55e" />
                         </TouchableOpacity>
 
-                        {/* RESOLVE BUTTON */}
                         <TouchableOpacity
                         style={[styles.voteButton, { backgroundColor: '#3b82f6', flex: 0.42, justifyContent: 'center' }]}
                         onPress={() => handleResolve(selectedReport.id)}
@@ -488,7 +495,6 @@ export default function MapScreen() {
               })()
             )}
 
-            {/* CLOSE BUTTON */}
             <TouchableOpacity
               style={styles.closeButton}
               onPress={() => {
@@ -503,9 +509,19 @@ export default function MapScreen() {
 
         {!selectedBlock && !selectedReport && !isLoading && !searchMode && (
             <View style={styles.legendContainer}>
-            <Text style={styles.legendTitle}>Livability Index</Text>
-            <View style={styles.legendItem}><View style={[styles.legendBox, { backgroundColor: 'rgba(0, 255, 0, 0.4)' }]} /><Text style={styles.legendText}>High</Text></View>
-            <View style={styles.legendItem}><View style={[styles.legendBox, { backgroundColor: 'rgba(255, 0, 0, 0.5)' }]} /><Text style={styles.legendText}>Low</Text></View>
+            <Text style={styles.legendTitle}>Livability Score (0-10)</Text>
+            <View style={styles.legendItem}>
+                <View style={[styles.legendBox, { backgroundColor: 'rgba(34, 197, 94, 0.6)' }]} />
+                <Text style={styles.legendText}>High (8-10)</Text>
+            </View>
+            <View style={styles.legendItem}>
+                <View style={[styles.legendBox, { backgroundColor: 'rgba(234, 179, 8, 0.6)' }]} />
+                <Text style={styles.legendText}>Medium (5-7)</Text>
+            </View>
+            <View style={styles.legendItem}>
+                <View style={[styles.legendBox, { backgroundColor: 'rgba(239, 68, 68, 0.6)' }]} />
+                <Text style={styles.legendText}>Low (0-4)</Text>
+            </View>
             </View>
         )}
 
@@ -608,5 +624,3 @@ const styles = StyleSheet.create({
     marginLeft: 4,
   },
 });
-
-
