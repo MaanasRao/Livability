@@ -393,7 +393,6 @@ export default function MapScreen() {
 
         {(selectedBlock || selectedReport) && !isLoading && !searchMode && (
           <Animated.View style={[styles.card, { transform: [{ translateY: slideAnim }] }]}>
-            <View style={styles.cardHandle} />
 
             {selectedBlock ? (
               // BLOCK UI
