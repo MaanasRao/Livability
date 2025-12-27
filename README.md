@@ -69,8 +69,9 @@ uvicorn main:app --reload --host 0.0.0.0 --port 8000
 3. Frontend Setup
 The mobile app.
 
-Bash
-
+```
+### 3. 3. Frontend Setup
+```
 # Navigate to frontend
 cd frontend
 
@@ -98,6 +99,8 @@ Bash
 
 npx expo start
 Scan the QR code with your phone or press a for Android Emulator.
+
+```
 
 🔒 Security Architecture
 This project implements a 3-Key Security System to protect API quotas and data integrity:
